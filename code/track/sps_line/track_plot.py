@@ -18,10 +18,10 @@ pio.templates["mycolor"] = go.layout.Template(
 pio.templates.default = "mycolor"
 
 #%% data in
-df_beam = pd.read_csv('../example/out_compare/beam.out',header=0,delim_whitespace=True)
+df_beam = pd.read_csv('starting/beam.out',header=0,delim_whitespace=True)
 df_beam.tail()
 #%%
-df_coord = pd.read_csv('../example/out_compare/coord.out',header=0,delim_whitespace=True)
+df_coord = pd.read_csv('starting/coord.out',header=0,delim_whitespace=True)
 df_coord.tail()
 # %%
 fig = go.Figure()
