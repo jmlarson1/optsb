@@ -24,11 +24,11 @@
  
 &INDEX
 
-  NRZ=1, igraph=1, iaccep=0, isol=0, iflag_dis=1, iflag2D=0, iflag_qq=1,
+  NRZ=1, igraph=0, iaccep=0, isol=0, iflag_dis=1, iflag2D=0, iflag_qq=1,
   iflag_upd=13, iflag_rms=1, iint=100, nstep_cav=50
   iflag_env=1, iflag_cav=1, iflag_ell=0, iflag_fenv=1
-  iflag_lev=0, isrf=100, iflag_mhb=0, iflag_match=1
-  iread_dis=0, iwrite_dis=0, iwrite_step=0
+  iflag_lev=0, isrf=100, iflag_mhb=0, iflag_match=0
+  iread_dis=0, iwrite_dis=0, iwrite_step=1
 
 &END
 
