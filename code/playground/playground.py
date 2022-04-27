@@ -24,9 +24,18 @@ client = InfluxClient(url, token, org, bucket) #connected to db
 env = gym.make("optsb-v0")
 env.client_connect(client,bucket)
 env.reset()
-
+#%%
+#pick random action, process step
+action_val = 4
+state, reward, _, _ = env.step(action_val)
 # %%
+max_time = state[0]['_time'].values.max()
+print(state)
+# need to return only proper data in state, or build proper array
+#int(v: max_time)
 
+
+#%%
 for i in range(4):
     state, reward, done, info = env.step(i)
     print(reward)

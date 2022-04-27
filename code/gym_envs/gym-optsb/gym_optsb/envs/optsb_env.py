@@ -6,7 +6,7 @@ from datetime import datetime
 class OptSBEnv(gym.Env):
     def __init__(self): #required for env
         self.action_space = gym.spaces.Discrete(5)
-        self.observation_space = gym.spaces.Discrete(2)
+        #self.observation_space = gym.spaces.Discrete(2)
         self.client = None
         self.bucket = None
         self.obs_type = 'sim'
@@ -43,12 +43,12 @@ class OptSBEnv(gym.Env):
         
         #pull from database
         db_read = self._pull_database()
-        print(db_read)
         self.obs = db_read
         return self.obs
     
     def _run_simulation(self): #process track
         print("inside _run_simulation")
+        #call function for sps_line to run in new dir and save data to db
         #create dummy data in db for now
         if (self.client) :
             for i in range(1):
@@ -80,8 +80,3 @@ class OptSBEnv(gym.Env):
     def render(self, mode='human'): #decide what to draw from env
         print("draw env figs")
         # fig = go.Figure()
-        # fig.add_trace(go.Scatter(x=self.df.index, y=self.df['Low']))
-        # fig.add_trace(go.Scatter(x=self.df.index, y=self.df['High'],fill='tonexty'))
-        # fig.add_trace(go.Scatter(x=self.df.index, y=self.df['Adj Close']))
-        # fig.update_xaxes(title='Price')
-        # fig.show()
