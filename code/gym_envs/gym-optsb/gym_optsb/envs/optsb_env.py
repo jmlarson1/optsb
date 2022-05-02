@@ -2,6 +2,7 @@ import gym
 from influxdb_client import InfluxDBClient, Point, WritePrecision
 from influx_client import InfluxClient
 from datetime import datetime
+from run_track import RunTRACK
 
 class OptSBEnv(gym.Env):
     def __init__(self): #required for env
@@ -11,12 +12,17 @@ class OptSBEnv(gym.Env):
         self.bucket = None
         self.obs_type = 'sim'
         self.obs = 0.
+        self.action = None
         self.reward = 0.
         self.state = None
 
+        self.rt = RunTRACK()
+
     def step(self, action): #required for env
+        #apply action, get updated state
+        self.action = action
         self.state = self._get_observation()
-    
+        #calcualte reward, losses, etc.
         if action == 1:
             self.reward = 1
         else:
@@ -39,25 +45,19 @@ class OptSBEnv(gym.Env):
         #if sim, run sim -> save to db -> pull from db
         #if exp, pull from db
         if (self.obs_type=='sim'):
-            self._run_simulation()
-        
-        #pull from database
-        db_read = self._pull_database()
+            db_read = self._run_simulation()
+        else:
+            db_read = self._pull_database()
+
         self.obs = db_read
         return self.obs
     
     def _run_simulation(self): #process track
         print("inside _run_simulation")
+        run_dir = self.rt.set_dir()
         #call function for sps_line to run in new dir and save data to db
         #create dummy data in db for now
-        if (self.client) :
-            for i in range(1):
-                data = [ Point('Data').tag("type","detector").tag("location","target")
-                .field("pos1",i).field("pos2",2.).field("rate1",i+1.).field("rate2",6.)
-                .time(time=datetime.utcnow()) ]
-                self.client.write_data(data)
-        else:
-            print("client not connected?")
+       
 
     def client_connect(self,client, bucket):
         self.client = client
