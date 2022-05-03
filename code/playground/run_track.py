@@ -23,10 +23,11 @@ class RunTRACK():
     def __init__(self):
         self.run_with_testing = 1
         self.run_dir = ""
+        #make below generic
+        self.current_dir = os.getcwd()
         self.track_dir="/Users/calemhoffman/Research/anl/inflight/optsb/code/track/build/"
         self.track_exe="TRACKv39C.exe"
         self.base_dir="/Users/calemhoffman/Research/anl/inflight/optsb/code/track/sps_line/"
-        self.current_dir = os.getcwd()
         print(self.current_dir)
         print(int(datetime.utcnow().strftime("%Y%m%d%H%M%S")))
 
@@ -117,47 +118,3 @@ class RunTRACK():
         )
         os.listdir()
 
-# #%% MAIN
-# df_results = pd.DataFrame()
-# quad_vals = []
-# run_with_testing = 1
-# rs = RunTRACK()
-
-# for i in range(10):
-#     run_dir = rs.set_dir()
-#     quad_vals = rs.get_quad_vals() #[1100,-1900,1200]
-#     print(quad_vals)
-#     rs.set_track(run_dir,quad_vals)
-#     rs.run_track(run_dir)
-#     df_beam,df_coord,df_step = rs.get_output(run_dir)
-#     rs.plot_track(df_beam,df_coord,df_step,quad_vals)
-#     df_temp = {'run_dir' : run_dir,
-#     'Q1': quad_vals[0], 'Q2': quad_vals[1], 'Q3': quad_vals[2],
-#     'Xrms': df_beam['x_rms[cm]'].values[len(df_beam.index)-1], 
-#     'Yrms': df_beam['y_rms[cm]'].values[len(df_beam.index)-1],
-#     'ax': df_beam['a_x'].values[len(df_beam.index)-1], 
-#     'ay': df_beam['a_y'].values[len(df_beam.index)-1],
-#     'az': df_beam['a_z'].values[len(df_beam.index)-1],
-#     'part_lost': df_beam['#of_part_lost'].values[len(df_beam.index)-1],
-#     'part_left': df_beam['#of_part_left'].values[len(df_beam.index)-1]
-#     }
-#     df_results = df_results.append(df_temp, ignore_index = True)
-
-# df_results.tail
-# #
-# # plot_results(df_results)
-# #%%
-# df_beam.columns
-# fig = go.Figure()
-# fig.add_trace(go.Scatter(
-#     x=df_results['Q1']/-df_results['Q2'], 
-#     y=df_results['Q3']/-df_results['Q2'],
-#     # x=df_results['ax'], 
-#     # y=df_results['ay'],
-#     mode='markers',marker_color=1./(df_results['Xrms']+df_results['Yrms']),
-#     marker_size=(df_results['part_left']/100.)
-#     ))
-
-# fig.update_xaxes(title="Q1/Q2",range=[0,2])
-# fig.update_yaxes(title="Q3/Q2",range=[0,2])
-# fig.show()
