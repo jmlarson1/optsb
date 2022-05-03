@@ -4,7 +4,6 @@ import subprocess
 from datetime import datetime
 from random import random
 import time
-
 import plotly.express as px
 import plotly.graph_objects as go
 from plotly.graph_objs import Scatter
@@ -23,12 +22,14 @@ class RunTRACK():
     def __init__(self):
         self.run_with_testing = 1
         self.run_dir = ""
-        #make below generic
+        #make below 'more' generic
         self.current_dir = os.getcwd()
-        self.track_dir="/Users/calemhoffman/Research/anl/inflight/optsb/code/track/build/"
+        self.main_dir, _ = os.path.split(os.getcwd()) #assumes working from playground dir
+        print(self.main_dir)
+        self.track_dir = self.main_dir + "/track/build/"
         self.track_exe="TRACKv39C.exe"
-        self.base_dir="/Users/calemhoffman/Research/anl/inflight/optsb/code/track/sps_line/"
-        print(self.current_dir)
+        self.base_dir = self.main_dir + "/track/sps_line/"
+        print(self.base_dir)
         print(int(datetime.utcnow().strftime("%Y%m%d%H%M%S")))
 
     # mkdir new run dir w/ date or number

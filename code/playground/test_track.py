@@ -28,7 +28,7 @@ quad_vals = []
 run_with_testing = 1
 rs = RunTRACK()
 
-for i in range(10):
+for i in range(3):
     run_dir = rs.set_dir()
     quad_vals = rs.get_quad_vals() #[1100,-1900,1200]
     print(quad_vals)

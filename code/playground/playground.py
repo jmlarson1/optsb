@@ -28,10 +28,16 @@ for i in range (10):
     reward_list.append(reward)
     
 df_results[['Q1','Q2','Q3']] = action_list
-df_results["reward"] = reward
+df_results["reward"] = reward_list
 
 print(df_results)
+#%%
 
+temp = os.getcwd()
+print(temp)
+
+head, tail = os.path.split(os.getcwd())
+head
 # %%
 #%% misc db stuff
 # for i in range(2):
