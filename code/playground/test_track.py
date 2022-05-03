@@ -28,9 +28,10 @@ quad_vals = []
 run_with_testing = 1
 rs = RunTRACK()
 
-for i in range(3):
+for i in range(1):
     run_dir = rs.set_dir()
-    quad_vals = rs.get_quad_vals() #[1100,-1900,1200]
+    #quad_vals = rs.get_quad_vals() #[1100,-1900,1200]
+    quad_vals = [0,0,0]
     print(quad_vals)
     rs.set_track(run_dir,quad_vals)
     rs.run_track(run_dir)
@@ -49,21 +50,22 @@ for i in range(3):
     df_results = df_results.append(df_temp, ignore_index = True)
 
 df_results.tail
+
 #
 # plot_results(df_results)
 #%%
-df_beam.columns
-fig = go.Figure()
-fig.add_trace(go.Scatter(
-    x=df_results['Q1']/-df_results['Q2'], 
-    y=df_results['Q3']/-df_results['Q2'],
-    # x=df_results['ax'], 
-    # y=df_results['ay'],
-    mode='markers',marker_color=1./(df_results['Xrms']+df_results['Yrms']),
-    marker_size=(df_results['part_left']/100.)
-    ))
+# df_beam.columns
+# fig = go.Figure()
+# fig.add_trace(go.Scatter(
+#     x=df_results['Q1']/-df_results['Q2'], 
+#     y=df_results['Q3']/-df_results['Q2'],
+#     # x=df_results['ax'], 
+#     # y=df_results['ay'],
+#     mode='markers',marker_color=1./(df_results['Xrms']+df_results['Yrms']),
+#     marker_size=(df_results['part_left']/100.)
+#     ))
 
-fig.update_xaxes(title="Q1/Q2",range=[0,2])
-fig.update_yaxes(title="Q3/Q2",range=[0,2])
-fig.show()
+# fig.update_xaxes(title="Q1/Q2",range=[0,2])
+# fig.update_yaxes(title="Q3/Q2",range=[0,2])
+# fig.show()
 # %%
