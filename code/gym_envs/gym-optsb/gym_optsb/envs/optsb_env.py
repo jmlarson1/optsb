@@ -7,13 +7,13 @@ import pandas as pd
 
 class OptSBEnv(gym.Env):
     def __init__(self): #required for env
-        #self.action_space = gym.spaces.Discrete(5)
-        #self.observation_space = gym.spaces.Discrete(2)
         self.client = None
         self.bucket = None
         self.obs_type = 'sim'
-        self.obs = pd.DataFrame()
         self.action = [0.,0.,0.]
+        self.obs = pd.DataFrame()
+        self.observation_space = 3 #need to setup dynamic variable
+        self.action_space = int(len(self.action))
         self.reward = 0.
         self.total_reward = 0.
         self.state = None
@@ -33,6 +33,7 @@ class OptSBEnv(gym.Env):
         self.reward = 0.
         self.action = [0.,0.,0.]
         self.state = self._get_observation()
+        return self.state
         
     def _process_data(self): #manipulate obs data??
         data = 10.
