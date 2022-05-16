@@ -94,7 +94,7 @@ class RunTRACK():
         fig_step.update_xaxes(title="distance [cm]",range=[0,900])
         fig_step.update_yaxes(title="size [cm]",range=[0,4])
         fig_step.write_image("profile.png")
-        fig_step.show()
+        #fig_step.show()
 
     def get_quad_vals(self):
         quad_vals = [1150,-1800,1000]
