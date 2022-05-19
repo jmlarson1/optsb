@@ -96,6 +96,20 @@ class RunTRACK():
         fig_step.write_image("profile.png")
         #fig_step.show()
 
+    def mod_quad_vals(self,action,quad_vals):
+        dt_size = 100. # units to change quad vals
+        dt_dir = [1., -1., 0.]
+        #quad_vals = [0.,0.,0.]
+        if (sum(action) == 0):
+            quad_vals[0] = random()*2000.
+            quad_vals[1] = random()*(-2000.)
+            quad_vals[2] = random()*2000.
+        else:
+            for i in range(3):
+                quad_vals[i] = quad_vals[i] + dt_size * dt_dir[np.argmax(action[0:3])]
+                #print(np.argmax(action[0:3]))
+        return quad_vals
+
     def get_quad_vals(self):
         quad_vals = [1150,-1800,1000]
         quad_vals[0] = random()*2000.

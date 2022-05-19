@@ -4,16 +4,20 @@ from influx_client import InfluxClient
 from datetime import datetime
 from run_track import RunTRACK
 import pandas as pd
+import random
+import numpy as np
 
 class OptSBEnv(gym.Env):
     def __init__(self): #required for env
         self.client = None
         self.bucket = None
         self.obs_type = 'sim'
-        self.action = [0.,0.,0.]
+        self.action = [0.,0.,0.,0.,0.,0.,0.,0.,0.] #change action space to 9 values?, up/down/same for each
+        #yes, then apply action to get new values i.e., pick max for each magnet then apply
+        self.quad_vals = [0.,0.,0.]
         self.obs = pd.DataFrame()
-        self.observation_space = 3 #need to setup dynamic variable
-        self.action_space = int(len(self.action))
+        self.observation_space = 3 #need to setup dynamic variable #add quad values to state?
+        self.action_space = int(len(self.action)) #9
         self.reward = 0.
         self.total_reward = 0.
         self.state = None
@@ -31,15 +35,20 @@ class OptSBEnv(gym.Env):
     def reset(self): #required for envs
         self.obs = pd.DataFrame()
         self.reward = 0.
-        self.action = [0.,0.,0.]
+        self.action = [0.,0.,0.,0.,0.,0.,0.,0.,0.] # [[0,1,2],[0,1,2],[0,1,2]] u/d/s action 
+        self.quad_vals = self.rs.get_quad_vals() #set random starting vals
         self.state = self._get_observation()
         return self.state
-        
-    def _process_data(self): #manipulate obs data??
-        data = 10.
     
     def querry_action(self):
-        return self.rs.get_quad_vals() #[1100,-1900,1200]
+        random_actions = np.random.uniform(0., 1., 9)
+        self.action = np.zeros_like(random_actions)
+        #print(random_actions)
+        self.action[np.argmax(random_actions[0:2])] = 1
+        self.action[np.argmax(random_actions[3:5]) + 3] = 1
+        self.action[np.argmax(random_actions[6:8]) + 6] = 1
+        #print(self.action)
+        return self.action #self.rs.get_quad_vals() #[1100,-1900,1200]
 
     def _get_observation(self): #pull data from database (sim or exp)??
         #if sim, run sim -> save to db -> pull from db
@@ -58,17 +67,17 @@ class OptSBEnv(gym.Env):
         df_results = pd.DataFrame()
         run_dir = self.rs.set_dir()
         #quad_vals = self.rs.get_quad_vals() #[1100,-1900,1200]
-        quad_vals = self.action
-        print(quad_vals)
-        self.rs.set_track(run_dir,quad_vals)
+        new_quad_vals = self.rs.mod_quad_vals(self.action, self.quad_vals) #quad_vals = apply_action()
+        print(new_quad_vals)
+        self.rs.set_track(run_dir,new_quad_vals)
         self.rs.run_track(run_dir)
         df_beam,df_coord,df_step = self.rs.get_output(run_dir)
-        self.rs.plot_track(df_beam,df_coord,df_step,quad_vals)
+        self.rs.plot_track(df_beam,df_coord,df_step,new_quad_vals)
         #should make below more digestible for selecting obs values
         #could also choose to pull data from other "z" positions
         #now just pulling very last point at the "target"
         df_temp = {'run_dir' : run_dir,
-        'Q1': quad_vals[0], 'Q2': quad_vals[1], 'Q3': quad_vals[2],
+        'Q1': new_quad_vals[0], 'Q2': new_quad_vals[1], 'Q3': new_quad_vals[2],
         'Xrms': df_beam['x_rms[cm]'].values[len(df_beam.index)-1], 
         'Yrms': df_beam['y_rms[cm]'].values[len(df_beam.index)-1],
         'ax': df_beam['a_x'].values[len(df_beam.index)-1], 

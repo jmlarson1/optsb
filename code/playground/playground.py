@@ -21,6 +21,7 @@ from run_track import RunTRACK
 from nn_policy import MultiLayerPolicy
 device = torch.device('cpu')
 
+
 #%% gym setup
 env = gym.make("optsb-v0")
 temp = env.reset()
@@ -135,7 +136,7 @@ for episode in range(num_episodes):
     policy.train()
 
     for step in tqdm.tqdm(range(num_steps), desc=f'Run {episode}'):
-        if np.random.random() < 0.0: #update later
+        if np.random.random() < 0: #update later
             action = env.querry_action()
         else:
             action = policy(state)
