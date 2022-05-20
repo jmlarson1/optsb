@@ -24,13 +24,18 @@ class RunTRACK():
         self.run_dir = ""
         #make below 'more' generic
         self.current_dir = os.getcwd()
-        self.main_dir, _ = os.path.split(os.getcwd()) #assumes working from playground dir
+        self.main_dir, temp = os.path.split(os.getcwd()) #assumes working from playground dir
         print(self.main_dir)
-        self.track_dir = self.main_dir + "/track/build/"
-        self.track_exe="TRACKv39C.exe"
-        self.base_dir = self.main_dir + "/track/sps_line/"
+        if (temp == "playground"):
+            self.track_dir = self.main_dir + "/track/build/"
+            self.base_dir = self.main_dir + "/track/sps_line/"
+        else:
+            self.main_dir, _ = os.path.split(self.main_dir)
+            self.track_dir = self.main_dir + "/build/"
+            self.base_dir = self.main_dir + "/sps_line/"
         print(self.base_dir)
-        print(int(datetime.utcnow().strftime("%Y%m%d%H%M%S")))
+        self.track_exe="TRACKv39C.exe"
+        #print(int(datetime.utcnow().strftime("%Y%m%d%H%M%S")))
 
     # mkdir new run dir w/ date or number
     def set_dir(self):
@@ -94,7 +99,7 @@ class RunTRACK():
         fig_step.update_xaxes(title="distance [cm]",range=[0,900])
         fig_step.update_yaxes(title="size [cm]",range=[0,4])
         fig_step.write_image("profile.png")
-        #fig_step.show()
+        fig_step.show()
 
     def mod_quad_vals(self,action,quad_vals):
         dt_size = 100. # units to change quad vals
@@ -134,3 +139,5 @@ class RunTRACK():
         )
         os.listdir()
 
+
+# %%
