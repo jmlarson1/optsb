@@ -33,7 +33,6 @@ for i in range(1):
     # act = np.zeros(9)
     # qd = [1000,-1000,1000]
     #quad_vals = rs.mod_quad_vals(act,qd) #adjusts based on action
-    #quad_vals = [0,0,0]
     quad_vals = rs.get_quad_vals() # random values
     print(quad_vals)
     rs.set_track(run_dir,quad_vals)

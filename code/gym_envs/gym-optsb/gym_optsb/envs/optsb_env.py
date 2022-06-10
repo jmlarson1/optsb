@@ -16,7 +16,7 @@ class OptSBEnv(gym.Env):
         #yes, then apply action to get new values i.e., pick max for each magnet then apply
         self.quad_vals = [0.,0.,0.]
         self.obs = pd.DataFrame()
-        self.observation_space = 3 #need to setup dynamic variable #add quad values to state?
+        self.observation_space = 6 #need to setup dynamic variable #add quad values to state?
         self.action_space = int(len(self.action)) #9
         self.reward = 0.
         self.total_reward = 0.
@@ -44,18 +44,23 @@ class OptSBEnv(gym.Env):
         random_actions = np.random.uniform(0., 1., 9)
         self.action = np.zeros_like(random_actions)
         #print(random_actions)
-        self.action[np.argmax(random_actions[0:2])] = 1
-        self.action[np.argmax(random_actions[3:5]) + 3] = 1
-        self.action[np.argmax(random_actions[6:8]) + 6] = 1
+        self.action[np.argmax(random_actions)] = 1.
+        # self.action[np.argmax(random_actions[0:2])] = 1
+        # self.action[np.argmax(random_actions[3:5]) + 3] = 1
+        # self.action[np.argmax(random_actions[6:8]) + 6] = 1
         #print(self.action)
         return self.action #self.rs.get_quad_vals() #[1100,-1900,1200]
+    
+    def get_action(self,qvalues):
+        self.action[np.argmax(qvalues)] = 1.
+        return self.action
 
     def _get_observation(self): #pull data from database (sim or exp)??
         #if sim, run sim -> save to db -> pull from db
         #if exp, pull from db
         if (self.obs_type=='sim'):
             db_read = self._run_simulation() #returns many values
-            self.obs = db_read[['Xrms','Yrms','part_left']] #pick some to send as state
+            self.obs = db_read[['Q1','Q2','Q3','Xrms','Yrms','part_left']] #pick some to send as state
         else: #not functional yet for data
             db_read = self._pull_database() 
             self.obs = db_read
@@ -63,12 +68,12 @@ class OptSBEnv(gym.Env):
         return self.obs
     
     def _run_simulation(self): #process track
-        print("inside _run_simulation")
+        #print("inside _run_simulation")
         df_results = pd.DataFrame()
         run_dir = self.rs.set_dir()
         #quad_vals = self.rs.get_quad_vals() #[1100,-1900,1200]
         new_quad_vals = self.rs.mod_quad_vals(self.action, self.quad_vals) #quad_vals = apply_action()
-        print(new_quad_vals)
+        #print(new_quad_vals)
         self.rs.set_track(run_dir,new_quad_vals)
         self.rs.run_track(run_dir)
         df_beam,df_coord,df_step = self.rs.get_output(run_dir)

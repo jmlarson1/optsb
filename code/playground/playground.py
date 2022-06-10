@@ -1,5 +1,4 @@
 #%%
-## lets go incorp q-learning ?? why not...
 import pandas as pd
 import gym
 import gym_optsb
@@ -90,19 +89,49 @@ class Agent():
             with torch.no_grad():
                 return policy_net(state).argmax(dim=1).to(self.device) # exploit
 
+def extract_tensors(experiences):
+    # Convert batch of Experiences to Experience of batches
+    batch = Experience(*zip(*experiences))
+
+    t1 = torch.stack(batch.state)
+    t2 = torch.stack(batch.action)
+    t3 = torch.stack(batch.reward)
+    t4 = torch.stack(batch.next_state)
+
+    return (t1,t2,t3,t4)
+
+class QValues():
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    @staticmethod
+    def get_current(policy, states, actions):
+        return policy(states)#.gather(dim=1, index=actions.unsqueeze(-1))
+
+    @staticmethod        
+    def get_next(target_net, next_states):   
+        return target_net(next_states)             
+        # final_state_locations = next_states.flatten(start_dim=1) \
+        #     .max(dim=1)[0].eq(0).type(torch.bool)
+        # non_final_state_locations = (final_state_locations == False)
+        # non_final_states = next_states[non_final_state_locations]
+        # batch_size = next_states.shape[0]
+        # values = torch.zeros(batch_size).to(QValues.device)
+        # values[non_final_state_locations] = target_net(non_final_states) #.max(dim=1)[0].detach()
+        # return values
 #%%
 #params
 
 num_episodes = 1
-num_steps = 10
-
+num_steps = 50
 batch_size = 5
+target_update = 20
+memory_size = 10
+
 gamma = 0.999
 eps_start = 1
 eps_end = 0.01
 eps_decay = 0.001
-target_update = 10
-memory_size = 100
+
 lr = 0.001
 
 train_rewards = torch.zeros(num_steps, num_episodes)
@@ -127,6 +156,9 @@ memory = ReplayMemory(memory_size)
 optimizer = optim.Adam(policy.parameters(), lr=lr, betas=(0.9, 0.999))
 
 #%%
+running_losses = []
+running_rewards = []
+indexing = []
 for episode in range(num_episodes):
     # initialize new episode params
     state = env.reset()
@@ -136,28 +168,52 @@ for episode in range(num_episodes):
     policy.train()
 
     for step in tqdm.tqdm(range(num_steps), desc=f'Run {episode}'):
-        if np.random.random() < 0: #update later
+        if np.random.random() < 1./(step+1.): #update later
             action = env.querry_action()
         else:
-            action = policy(state)
-            action = action[0,:].detach().numpy()
-        print(action)
+            qvalues = policy(state)
+            qvalues = qvalues[0,:].detach().numpy()
+            print("qvalues: {}:".format(qvalues))
+            action = env.get_action(qvalues)
+        print("action: {}".format(action))
         next_state, reward, done, info = env.step(action)
         next_state = torch.tensor(next_state.to_numpy()).to(device).float()
-        print(info)
         reward_all_episodes.append(reward)
+        #action = torch.from_numpy(action).to(device).float()
+        action = torch.tensor([action],dtype=torch.float).to(device).float()
+        reward = torch.tensor([reward],dtype=torch.float).to(device).float()
+        running_rewards.append(reward.item())
         memory.push(Experience(state, action, next_state, reward))
         state = next_state #torch.tensor(next_state.to_numpy()).to(device).float()
         #loss = 1.#update_policy(policy, state, action, reward, next_state, discount_factor, optimizer)
         if memory.can_provide_sample(batch_size):
             experiences = memory.sample(batch_size)
-            print(experiences)
-            # states, actions, rewards, next_states = extract_tensors(experiences)
-            # current_q_values = QValues.get_current(policy_net, states, actions)
-            # next_q_values = QValues.get_next(target_net, next_states)
-            # target_q_values = (next_q_values * gamma) + rewards
-            # loss = F.mse_loss(current_q_values, target_q_values.unsqueeze(1))
-            # optimizer.zero_grad()
-            # loss.backward()
-            # optimizer.step()
+            states, actions, rewards, next_states = extract_tensors(experiences)
+            current_q_values = QValues.get_current(policy, states, actions)
+            next_q_values = QValues.get_next(target, next_states)
+            #max_q_values = 0 #match current_q_values form
+            #target_q_values = (next_q_values * gamma) + rewards
+            #loss = F.mse_loss(current_q_values, target_q_values.unsqueeze(1))
+            loss = F.mse_loss(current_q_values, next_q_values)
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+            running_losses.append(loss.item())
+        indexing.append(episode*step+step+1)
+        if step % target_update == 0:
+            target.load_state_dict(policy.state_dict())
+print(running_rewards)
+print(running_losses)
+# %%
+import plotly.express as px
+import plotly.graph_objects as go
+from plotly.graph_objs import Scatter
+from plotly.subplots import make_subplots
+
+fig = go.Figure()
+fig.add_trace(go.Scatter(name='reward',x=indexing,y=running_rewards))
+fig.add_trace(go.Scatter(name='loss',x=indexing,y=running_losses))
+fig.update_xaxes(title='step number')
+fig.show()
+
 # %%

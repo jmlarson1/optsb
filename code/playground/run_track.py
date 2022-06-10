@@ -25,7 +25,7 @@ class RunTRACK():
         #make below 'more' generic
         self.current_dir = os.getcwd()
         self.main_dir, temp = os.path.split(os.getcwd()) #assumes working from playground dir
-        print(self.main_dir)
+        #print(self.main_dir)
         if (temp == "playground"):
             self.track_dir = self.main_dir + "/track/build/"
             self.base_dir = self.main_dir + "/track/sps_line/"
@@ -33,7 +33,7 @@ class RunTRACK():
             self.main_dir, _ = os.path.split(self.main_dir)
             self.track_dir = self.main_dir + "/build/"
             self.base_dir = self.main_dir + "/sps_line/"
-        print(self.base_dir)
+        #print(self.base_dir)
         self.track_exe="TRACKv39C.exe"
         #print(int(datetime.utcnow().strftime("%Y%m%d%H%M%S")))
 
@@ -45,7 +45,7 @@ class RunTRACK():
             time.sleep(1.5) #needed to be sure new folder is made for loop
             date_time = int(datetime.utcnow().strftime("%Y%m%d%H%M%S"))
             self.run_dir = os.path.join(self.base_dir, f"sim_{date_time}")
-        print(self.run_dir)
+        #print(self.run_dir)
         if (os.path.isdir(self.run_dir)):
             print("directory exists")
         else:
@@ -57,7 +57,7 @@ class RunTRACK():
         for file_name in track_input_files:
             cp_file1 = os.path.join(self.base_dir,file_name)
             cp_file2 = os.path.join(run_dir,file_name)
-            print(cp_file1)
+            #print(cp_file1)
             os.system(f"cp {cp_file1} {cp_file2}")
         #modify track input files as needed
         sclinac_file = os.path.join(run_dir, "sclinac.dat")
@@ -99,7 +99,7 @@ class RunTRACK():
         fig_step.update_xaxes(title="distance [cm]",range=[0,900])
         fig_step.update_yaxes(title="size [cm]",range=[0,4])
         fig_step.write_image("profile.png")
-        fig_step.show()
+        #fig_step.show()
 
     def mod_quad_vals(self,action,quad_vals):
         dt_size = 100. # units to change quad vals
