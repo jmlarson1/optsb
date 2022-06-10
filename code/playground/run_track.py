@@ -53,6 +53,7 @@ class RunTRACK():
         return self.run_dir
 
     def set_track(self,run_dir,quad_vals):
+        print("quad_vals: {}".format(quad_vals))
         track_input_files = ['track.dat','sclinac.dat','fi_in.dat']
         for file_name in track_input_files:
             cp_file1 = os.path.join(self.base_dir,file_name)
@@ -112,7 +113,10 @@ class RunTRACK():
         else:
             for i in range(3):
                 quad_vals[i] = quad_vals[i] + dt_size * dt_dir[np.argmax(action[0:3])]
-                #print(np.argmax(action[0:3]))
+            tmp_np = np.array(quad_vals)
+            tmp_np[tmp_np > 2000.] = 2000. 
+            tmp_np[tmp_np < -2000.] = -2000. 
+            quad_vals = list(tmp_np)
         return quad_vals
 
     def get_quad_vals(self):

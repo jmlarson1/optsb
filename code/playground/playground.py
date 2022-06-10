@@ -120,18 +120,15 @@ class QValues():
         # return values
 #%%
 #params
-
 num_episodes = 1
-num_steps = 50
-batch_size = 5
-target_update = 20
-memory_size = 10
-
+num_steps = 10
+batch_size = 2
+target_update = 2
+memory_size = 5
 gamma = 0.999
 eps_start = 1
 eps_end = 0.01
 eps_decay = 0.001
-
 lr = 0.001
 
 train_rewards = torch.zeros(num_steps, num_episodes)
@@ -168,7 +165,7 @@ for episode in range(num_episodes):
     policy.train()
 
     for step in tqdm.tqdm(range(num_steps), desc=f'Run {episode}'):
-        if np.random.random() < 1./(step+1.): #update later
+        if np.random.random() < 0.5: #update later
             action = env.querry_action()
         else:
             qvalues = policy(state)
@@ -191,10 +188,20 @@ for episode in range(num_episodes):
             states, actions, rewards, next_states = extract_tensors(experiences)
             current_q_values = QValues.get_current(policy, states, actions)
             next_q_values = QValues.get_next(target, next_states)
+            # get max value & index from next
+            # combine to get value (next_q_values * gamma) + rewards
+            # replace current with target (only for the max index)
             #max_q_values = 0 #match current_q_values form
             #target_q_values = (next_q_values * gamma) + rewards
             #loss = F.mse_loss(current_q_values, target_q_values.unsqueeze(1))
-            loss = F.mse_loss(current_q_values, next_q_values)
+            test = current_q_values.detach().numpy() #np.array(current_q_values)
+            test2 = next_q_values.detach().numpy() #np.array(next_q_values)
+            #test[test2.argmax()] = (test2[test2.argmax()] + rewards)
+            print("test2: {}".format(test2))
+            print(np.argmax(test2,axis=1))
+            print(test2[test2.argmax()])
+            target_q_values = list(test)
+            loss = F.mse_loss(current_q_values, target_q_values)
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()

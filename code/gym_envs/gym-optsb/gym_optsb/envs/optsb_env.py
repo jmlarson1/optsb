@@ -41,6 +41,7 @@ class OptSBEnv(gym.Env):
         return self.state
     
     def querry_action(self):
+        print("RANDOM")
         random_actions = np.random.uniform(0., 1., 9)
         self.action = np.zeros_like(random_actions)
         #print(random_actions)
@@ -52,7 +53,10 @@ class OptSBEnv(gym.Env):
         return self.action #self.rs.get_quad_vals() #[1100,-1900,1200]
     
     def get_action(self,qvalues):
+        self.action = np.zeros_like(qvalues)
+        #print("NN: {}".format(qvalues))
         self.action[np.argmax(qvalues)] = 1.
+        #print("NN Action: {}".format(self.action))
         return self.action
 
     def _get_observation(self): #pull data from database (sim or exp)??
