@@ -121,7 +121,7 @@ class QValues():
 #%%
 #params
 num_episodes = 1
-num_steps = 10
+num_steps = 2
 batch_size = 2
 target_update = 2
 memory_size = 5
@@ -188,24 +188,28 @@ for episode in range(num_episodes):
             states, actions, rewards, next_states = extract_tensors(experiences)
             current_q_values = QValues.get_current(policy, states, actions)
             next_q_values = QValues.get_next(target, next_states)
+            print(current_q_values)
             # get max value & index from next
             # combine to get value (next_q_values * gamma) + rewards
             # replace current with target (only for the max index)
             #max_q_values = 0 #match current_q_values form
             #target_q_values = (next_q_values * gamma) + rewards
             #loss = F.mse_loss(current_q_values, target_q_values.unsqueeze(1))
-            test = current_q_values.detach().numpy() #np.array(current_q_values)
+            test = np.array(current_q_values.detach()) #np.array(current_q_values)
             test2 = next_q_values.detach().numpy() #np.array(next_q_values)
-            #test[test2.argmax()] = (test2[test2.argmax()] + rewards)
-            print("test2: {}".format(test2))
-            print(np.argmax(test2,axis=1))
-            print(test2[test2.argmax()])
-            target_q_values = list(test)
-            loss = F.mse_loss(current_q_values, target_q_values)
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
-            running_losses.append(loss.item())
+            print(test[0,:])
+            print("test shape: {}".format(test.shape))
+            temp = np.argmax(test2, axis=0)
+            print(temp)
+            # print("test2: {}".format(test2))
+            # print(np.argmax(test2,axis=1))
+            # print(test2[test2.argmax()])
+            # target_q_values = list(test)
+            # loss = F.mse_loss(current_q_values, target_q_values)
+            #optimizer.zero_grad()
+            #loss.backward()
+            #optimizer.step()
+            #running_losses.append(loss.item())
         indexing.append(episode*step+step+1)
         if step % target_update == 0:
             target.load_state_dict(policy.state_dict())
