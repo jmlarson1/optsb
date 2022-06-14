@@ -28,7 +28,7 @@ quad_vals = []
 run_with_testing = 1
 rs = RunTRACK()
 
-for i in range(1):
+for i in range(10):
     run_dir = rs.set_dir()
     # act = np.zeros(9)
     # qd = [1000,-1000,1000]

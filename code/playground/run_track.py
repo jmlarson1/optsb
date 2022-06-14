@@ -20,6 +20,7 @@ pio.templates.default = "mycolor"
 
 class RunTRACK():
     def __init__(self):
+        self.doShowPlot = False
         self.run_with_testing = 1
         self.run_dir = ""
         #make below 'more' generic
@@ -100,11 +101,17 @@ class RunTRACK():
         fig_step.update_xaxes(title="distance [cm]",range=[0,900])
         fig_step.update_yaxes(title="size [cm]",range=[0,4])
         fig_step.write_image("profile.png")
-        #fig_step.show()
+        if (self.doShowPlot):
+            fig_step.show()
 
     def mod_quad_vals(self,action,quad_vals):
-        dt_size = 100. # units to change quad vals
+        dt_size = 50. # units to change quad vals
         dt_dir = [1., -1., 0.]
+        dt = []
+        dt.append(sum(action[0:3])*dt_dir[np.argmax(action[:3])])
+        dt.append(sum(action[3:6])*dt_dir[np.argmax(action[3:6])])
+        dt.append(sum(action[6:9])*dt_dir[np.argmax(action[6:9])])
+        print("dt values: {}".format(dt))
         #quad_vals = [0.,0.,0.]
         if (sum(action) == 0):
             quad_vals[0] = random()*2000.
@@ -112,11 +119,11 @@ class RunTRACK():
             quad_vals[2] = random()*2000.
         else:
             for i in range(3):
-                quad_vals[i] = quad_vals[i] + dt_size * dt_dir[np.argmax(action[0:3])]
-            tmp_np = np.array(quad_vals)
-            tmp_np[tmp_np > 2000.] = 2000. 
-            tmp_np[tmp_np < -2000.] = -2000. 
-            quad_vals = list(tmp_np)
+                quad_vals[i] = quad_vals[i] + dt_size * dt[i]
+            # tmp_np = np.array(quad_vals)
+            # tmp_np[tmp_np > 2000.] = 2000. 
+            # tmp_np[tmp_np < -2000.] = -2000. 
+            # quad_vals = list(tmp_np)
         return quad_vals
 
     def get_quad_vals(self):
