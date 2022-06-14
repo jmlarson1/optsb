@@ -13,7 +13,8 @@ class OptSBEnv(gym.Env):
         self.client = None
         self.bucket = None
         self.obs_type = 'sim'
-        self.action = [0.,0.,0.,0.,0.,0.,0.,0.,0.] #change action space to 9 values?, up/down/same for each
+        self.optimal_reward_value = -0.1
+        self.action = [0.,0.,0.,0.,0.,0.,0.,0.,0.] #change action space to 6 values?, up/down for each
         #yes, then apply action to get new values i.e., pick max for each magnet then apply
         self.quad_vals = [0.,0.,0.]
         self.obs = pd.DataFrame()
@@ -27,10 +28,12 @@ class OptSBEnv(gym.Env):
 
     def step(self, action): #required for env
         #apply action, get updated state
-        self.action = action
-        self.state = self._get_observation()
-        self.reward = self._calculate_reward()
         done = False
+        self.action = action
+        self.state, state_done = self._get_observation()
+        self.reward, reward_done = self._calculate_reward()
+        if (reward_done or state_done):
+            done = True
         info = {"action" : self.action, "state" : self.state.to_numpy(), "reward" : self.reward}
         return self.state, self.reward, done, info
 
@@ -41,7 +44,7 @@ class OptSBEnv(gym.Env):
         self.iteration_reward = []
         self.action = [0.,0.,0.,0.,0.,0.,0.,0.,0.] # u/d/s actions x3 quads
         self.quad_vals = self.rs.get_quad_vals() #set random starting vals
-        self.state = self._get_observation()
+        self.state, _ = self._get_observation()
         return self.state
     
     def querry_action(self):
@@ -59,27 +62,31 @@ class OptSBEnv(gym.Env):
         #if sim, run sim -> get vals directly
         #if exp, pull from db
         if (self.obs_type=='sim'):
-            db_read = self._run_simulation() #returns many values
+            db_read, obs_done = self._run_simulation() #returns many values
             self.obs = db_read[['Q1','Q2','Q3','Xrms','Yrms','part_left']] #pick some to send as state
         else: #not functional yet for data
             db_read = self._pull_database() 
             self.obs = db_read
 
-        return self.obs
+        return self.obs, obs_done
     
     def _run_simulation(self): #process track
         df_results = pd.DataFrame()
+        sim_done = False
         run_dir = self.rs.set_dir()
         print("old quad vals: {}".format(self.quad_vals))
         new_quad_vals = self.rs.mod_quad_vals(self.action, self.quad_vals) #quad_vals = apply_action()
         print("new quad vals: {}".format(new_quad_vals))
+        sim_done = any(i >= 2000 for i in new_quad_vals)
+        sim_done = any(i <= -2000 for i in new_quad_vals)
+        #quad val check to set "done"
         self.rs.set_track(run_dir,new_quad_vals)
         self.rs.run_track(run_dir)
         df_beam,df_coord,df_step = self.rs.get_output(run_dir)
         self.rs.plot_track(df_beam,df_coord,df_step,new_quad_vals)
         #should make below more digestible for selecting obs values
         #could also choose to pull data from other "z" positions
-        #now just pulling very last point at the "target"
+        #now just pulling very last point at the "target" position
         df_temp = {'run_dir' : run_dir,
         'Q1': new_quad_vals[0], 'Q2': new_quad_vals[1], 'Q3': new_quad_vals[2],
         'Xrms': df_beam['x_rms[cm]'].values[len(df_beam.index)-1], 
@@ -91,7 +98,7 @@ class OptSBEnv(gym.Env):
         'part_left': df_beam['#of_part_left'].values[len(df_beam.index)-1]
         }
         df_results = df_results.append(df_temp, ignore_index = True)
-        return df_results
+        return df_results, sim_done
        
 
     def client_connect(self,client, bucket):
@@ -117,10 +124,13 @@ class OptSBEnv(gym.Env):
         transmission_fraction = 1. - 1000./self.obs.iloc[0]['part_left']
         factor = 1.
         reward_value = -1.*radius_squared - factor*transmission_fraction
+        reward_done = False
+        if (reward_value > self.optimal_reward_value):
+            reward_done = True
         #update reward stuff ??
         self.iteration_reward.append(reward_value)
         self.cummulative_reward.append(sum(self.iteration_reward))
-        return reward_value
+        return reward_value, reward_done
     
     def render(self, mode="human"): #decide what to draw from env
         print("Drawing env figures")

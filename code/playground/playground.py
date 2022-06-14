@@ -3,7 +3,8 @@
 # -- each step, rewards, actions, states ? ? 
 # ---- new plot for each episode ? ? 
 # - return False to stop loop when "conditions met"
-# - - conditions include, max values on quads, transmission < XXX%, reward high
+# - - conditions include, 
+# - - -max values on quads, transmission < XXX%, reward high/DONE
 # - document / fix all output array value types (array, np, df, etc.)
 
 #%%
@@ -34,7 +35,7 @@ env = gym.make("optsb-v0")
 #%%
 #params
 num_episodes = 1
-num_steps = 10
+num_steps = 25
 
 #%% 
 #MAIN RUN
@@ -55,6 +56,9 @@ for episode in range(num_episodes):
         iterate_reward.append(reward)
         #accumulative_reward.append(iterate_reward.sum())
         indexing.append(episode*num_steps+step)
+        if (done):
+            print("GOT A TRUE VALUE FOR DONE on step: {}".format(step))
+            break
 print(iterate_reward)
 #%% Should collate all data into df each row is step
 
