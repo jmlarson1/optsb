@@ -1,10 +1,11 @@
 #%% to do
 # - more plots via env render
-# -- each step, rewards, actions, states ? ? 
+# -- each step, rewards/DONE, actions/DONE, states ? ? 
 # ---- new plot for each episode ? ? 
-# - return False to stop loop when "conditions met"
+# - return False to stop loop when "conditions met"/DONE
 # - - conditions include, 
-# - - -max values on quads, transmission < XXX%, reward high/DONE
+# - - -max values on quads/DONE, transmission < XXX%/DONE, reward high/DONE
+# - if max quads outside range set = 2000 (will still trigger 'done=True' too)
 # - document / fix all output array value types (array, np, df, etc.)
 
 #%%
@@ -35,7 +36,7 @@ env = gym.make("optsb-v0")
 #%%
 #params
 num_episodes = 1
-num_steps = 25
+num_steps = 2
 
 #%% 
 #MAIN RUN

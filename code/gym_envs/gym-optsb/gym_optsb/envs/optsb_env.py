@@ -22,7 +22,11 @@ class OptSBEnv(gym.Env):
         self.action_space = int(len(self.action)) #9
         self.reward = 0.
         self.cummulative_reward = []
-        self.iteration_reward = []
+        self.iteration_reward = [] #reward
+        self.iteration_transmission = [] #trans fraction
+        self.iteration_radius = [] # x,y,r
+        self.iteration_quad_vals = [] # 1,2,3
+        self.iteration_action = [] #index 0-8
         self.state = None
         self.rs = RunTRACK()
 
@@ -30,8 +34,15 @@ class OptSBEnv(gym.Env):
         #apply action, get updated state
         done = False
         self.action = action
+        self.iteration_action.append(np.argmax(np.array(action)))
+
         self.state, state_done = self._get_observation()
+        self.iteration_quad_vals.append(self.state[:3])
+
         self.reward, reward_done = self._calculate_reward()
+        self.iteration_reward.append(self.reward)
+        self.cummulative_reward.append(sum(self.iteration_reward))
+
         if (reward_done or state_done):
             done = True
         info = {"action" : self.action, "state" : self.state.to_numpy(), "reward" : self.reward}
@@ -40,8 +51,11 @@ class OptSBEnv(gym.Env):
     def reset(self): #required for envs
         self.obs = pd.DataFrame()
         self.reward = 0.
-        self.cummulative_reward = []
-        self.iteration_reward = []
+        self.iteration_reward = [] #reward
+        self.iteration_transmission = [] #trans fraction
+        self.iteration_radius = [] # x,y,r
+        self.iteration_quad_vals = [] # 1,2,3
+        self.iteration_action = [] #index 0-8
         self.action = [0.,0.,0.,0.,0.,0.,0.,0.,0.] # u/d/s actions x3 quads
         self.quad_vals = self.rs.get_quad_vals() #set random starting vals
         self.state, _ = self._get_observation()
@@ -121,15 +135,14 @@ class OptSBEnv(gym.Env):
         xrms = self.obs.iloc[0]['Xrms']
         yrms = self.obs.iloc[0]['Yrms']
         radius_squared = xrms*xrms + yrms*yrms
-        transmission_fraction = 1. - 1000./self.obs.iloc[0]['part_left']
+        self.iteration_radius.append([xrms,yrms,radius_squared])
+        transmission_fraction = self.obs.iloc[0]['part_left']/1000.
+        self.iteration_transmission.append(transmission_fraction)
         factor = 1.
-        reward_value = -1.*radius_squared - factor*transmission_fraction
+        reward_value = -1.*radius_squared - factor*(1.-transmission_fraction)
         reward_done = False
-        if (reward_value > self.optimal_reward_value):
+        if (reward_value > self.optimal_reward_value or transmission_fraction < 0.1):
             reward_done = True
-        #update reward stuff ??
-        self.iteration_reward.append(reward_value)
-        self.cummulative_reward.append(sum(self.iteration_reward))
         return reward_value, reward_done
     
     def render(self, mode="human"): #decide what to draw from env
@@ -139,5 +152,7 @@ class OptSBEnv(gym.Env):
             indexing.append(i)
         fig = go.Figure()
         fig.add_trace(go.Scatter(name='reward',x=indexing,y=self.iteration_reward))
+        fig.add_trace(go.Scatter(name='action',x=indexing,y=self.iteration_action))
+        fig.add_trace(go.Scatter(name='transmission',x=indexing,y=self.iteration_transmission))
         fig.update_xaxes(title='step number')
         fig.show()

@@ -105,7 +105,7 @@ class RunTRACK():
             fig_step.show()
 
     def mod_quad_vals(self,action,quad_vals):
-        dt_size = 500. # units to change quad vals
+        dt_size = 100. # units to change quad vals
         dt_dir = [1., -1., 0.]
         dt = []
         dt.append(sum(action[0:3])*dt_dir[np.argmax(action[:3])])
