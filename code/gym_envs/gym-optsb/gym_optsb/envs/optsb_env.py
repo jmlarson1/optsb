@@ -77,8 +77,8 @@ class OptSBEnv(gym.Env):
         print("old quad vals: {}".format(self.quad_vals))
         new_quad_vals = self.rs.mod_quad_vals(self.action, self.quad_vals) #quad_vals = apply_action()
         print("new quad vals: {}".format(new_quad_vals))
-        sim_done = any(i >= 2000 for i in new_quad_vals)
-        sim_done = any(i <= -2000 for i in new_quad_vals)
+        if ( any(i >= 2000 for i in new_quad_vals) or any(i <= -2000 for i in new_quad_vals) ):
+            sim_done = True
         #quad val check to set "done"
         self.rs.set_track(run_dir,new_quad_vals)
         self.rs.run_track(run_dir)
