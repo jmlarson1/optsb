@@ -33,6 +33,13 @@ device = torch.device('cpu')
 
 #%% gym setup
 env = gym.make("optsb-v0")
+#env = gym.make("MountainCar-v0")
+obs_space = env.observation_space
+action_space = env.action_space
+print("The observation space: {}".format(obs_space))
+print("The action space: {}".format(action_space))
+env.reset()
+
 #%%
 #params
 num_episodes = 1
