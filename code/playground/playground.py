@@ -58,7 +58,7 @@ for episode in range(num_episodes):
         #accumulative_reward.append(iterate_reward.sum())
         indexing.append(episode*num_steps+step)
         if (done):
-            print("GOT A TRUE VALUE FOR DONE on step: {}".format(step))
+            print("Break Before Final Step: {}".format(step))
             break
 print(iterate_reward)
 #%% Should collate all data into df each row is step
