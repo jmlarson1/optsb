@@ -19,10 +19,9 @@ class OptSBEnv(gym.Env):
         #yes, then apply action to get new values i.e., pick max for each magnet then apply
         self.quad_vals = [0.,0.,0.]
         self.obs = pd.DataFrame()
-        self.obs_space_low = np.array([-3000.,-3000.,-3000.,-3000.,-3000.,-3000.], dtype=np.float32)
-        self.obs_space_high = np.array([3000.,3000.,3000.,3000.,3000.,3000.], dtype=np.float32)
         self.action_space = gym.spaces.Discrete(9)
-        self.observation_space = gym.spaces.Box(self.obs_space_low, self.obs_space_high, dtype=np.float32)
+        self.observation_space = gym.spaces.Box(low=-np.inf,high=np.inf, shape=(6,), dtype=np.float32)
+        print('State space dim is: ', self.observation_space)
         self.reward = 0.
         self.cummulative_reward = []
         self.iteration_reward = [] #reward
@@ -30,7 +29,7 @@ class OptSBEnv(gym.Env):
         self.iteration_radius = [] # x,y,r
         self.iteration_quad_vals = [] # 1,2,3
         self.iteration_action = [] #index 0-8
-        self.state = None
+        self.state = np.ones(self.observation_space.shape[0])
         self.rs = RunTRACK()
 
     def step(self, action): #required for env
@@ -63,6 +62,10 @@ class OptSBEnv(gym.Env):
         self.quad_vals = self.rs.get_quad_vals() #set random starting vals
         self.state, _ = self._get_observation()
         print(self.state)
+        self.state = np.ones(self.observation_space.shape)
+        self.state.flatten().astype(np.float32)
+        print(self.state)
+        print(self.state.shape)
         return self.state
     
     def querry_action(self):

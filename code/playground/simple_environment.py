@@ -117,6 +117,8 @@ class simpleEnv(gym.Env):
             out_of_range = init_reward<-1. or init_reward>-0.5
         # print('inits ',init_reward)
         self.initial_conditions.append(init_state)
+        print(init_state)
+        print(init_state.shape)
         return init_state
 
 
