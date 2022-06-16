@@ -7,6 +7,7 @@ import pandas as pd
 import random
 import numpy as np
 import plotly.graph_objects as go
+from typing import Optional
 
 class OptSBEnv(gym.Env):
     def __init__(self): #required for env
@@ -14,12 +15,14 @@ class OptSBEnv(gym.Env):
         self.bucket = None
         self.obs_type = 'sim'
         self.optimal_reward_value = -0.1
-        self.action = [0.,0.,0.,0.,0.,0.,0.,0.,0.] #change action space to 6 values?, up/down for each
+        self.action = [0.,0.,0.,0.,0.,0.,0.,0.,0.]#change action space to 6 values?, up/down for each
         #yes, then apply action to get new values i.e., pick max for each magnet then apply
         self.quad_vals = [0.,0.,0.]
         self.obs = pd.DataFrame()
-        self.observation_space = 6 #need to setup dynamic variable #add quad values to state?
-        self.action_space = int(len(self.action)) #9
+        self.obs_space_low = np.array([-3000.,-3000.,-3000.,-3000.,-3000.,-3000.], dtype=np.float32)
+        self.obs_space_high = np.array([3000.,3000.,3000.,3000.,3000.,3000.], dtype=np.float32)
+        self.action_space = gym.spaces.Discrete(9)
+        self.observation_space = gym.spaces.Box(self.obs_space_low, self.obs_space_high, dtype=np.float32)
         self.reward = 0.
         self.cummulative_reward = []
         self.iteration_reward = [] #reward
@@ -48,7 +51,7 @@ class OptSBEnv(gym.Env):
         info = {"action" : self.action, "state" : self.state.to_numpy(), "reward" : self.reward}
         return self.state, self.reward, done, info
 
-    def reset(self): #required for envs
+    def reset(self,*,seed: Optional[int] = None,return_info: bool = False,options: Optional[dict] = None,): #required for envs
         self.obs = pd.DataFrame()
         self.reward = 0.
         self.iteration_reward = [] #reward
@@ -59,6 +62,7 @@ class OptSBEnv(gym.Env):
         self.action = [0.,0.,0.,0.,0.,0.,0.,0.,0.] # u/d/s actions x3 quads
         self.quad_vals = self.rs.get_quad_vals() #set random starting vals
         self.state, _ = self._get_observation()
+        print(self.state)
         return self.state
     
     def querry_action(self):
@@ -77,7 +81,8 @@ class OptSBEnv(gym.Env):
         #if exp, pull from db
         if (self.obs_type=='sim'):
             db_read, obs_done = self._run_simulation() #returns many values
-            self.obs = db_read[['Q1','Q2','Q3','Xrms','Yrms','part_left']] #pick some to send as state
+            temp = db_read[['Q1','Q2','Q3','Xrms','Yrms','part_left']]
+            self.obs = np.squeeze(np.array(temp.values.tolist())) #pick some to send as state
         else: #not functional yet for data
             db_read = self._pull_database() 
             self.obs = db_read
