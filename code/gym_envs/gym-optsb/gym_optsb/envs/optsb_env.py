@@ -20,7 +20,7 @@ class OptSBEnv(gym.Env):
         self.quad_vals = [0.,0.,0.]
         self.obs = pd.DataFrame()
         self.action_space = gym.spaces.Discrete(9)
-        self.observation_space = gym.spaces.Box(low=-np.inf,high=np.inf, shape=(6,), dtype=np.float32)
+        self.observation_space = gym.spaces.Box(low=-np.inf,high=np.inf, shape=(6,), dtype=np.float64)
         print('State space dim is: ', self.observation_space)
         self.reward = 0.
         self.cummulative_reward = []
@@ -47,7 +47,7 @@ class OptSBEnv(gym.Env):
 
         if (reward_done or state_done):
             done = True
-        info = {"action" : self.action, "state" : self.state.to_numpy(), "reward" : self.reward}
+        info = {"action" : self.action, "state" : self.state, "reward" : self.reward}
         return self.state, self.reward, done, info
 
     def reset(self,*,seed: Optional[int] = None,return_info: bool = False,options: Optional[dict] = None,): #required for envs
@@ -61,11 +61,11 @@ class OptSBEnv(gym.Env):
         self.action = [0.,0.,0.,0.,0.,0.,0.,0.,0.] # u/d/s actions x3 quads
         self.quad_vals = self.rs.get_quad_vals() #set random starting vals
         self.state, _ = self._get_observation()
-        print(self.state)
-        self.state = np.ones(self.observation_space.shape)
-        self.state.flatten().astype(np.float32)
-        print(self.state)
-        print(self.state.shape)
+        # print(self.state)
+        # self.state = np.ones(self.observation_space.shape)
+        #self.state.flatten().astype(np.float64)
+        # print(self.state.dtype)
+        # print(self.state.shape)
         return self.state
     
     def querry_action(self):
@@ -84,13 +84,13 @@ class OptSBEnv(gym.Env):
         #if exp, pull from db
         if (self.obs_type=='sim'):
             db_read, obs_done = self._run_simulation() #returns many values
-            temp = db_read[['Q1','Q2','Q3','Xrms','Yrms','part_left']]
-            self.obs = np.squeeze(np.array(temp.values.tolist())) #pick some to send as state
+            self.obs = db_read[['Q1','Q2','Q3','Xrms','Yrms','part_left']]
+             #pick some to send as state
         else: #not functional yet for data
             db_read = self._pull_database() 
             self.obs = db_read
-
-        return self.obs, obs_done
+        np_obs = np.squeeze(np.array(self.obs.values.tolist()))
+        return np_obs, obs_done
     
     def _run_simulation(self): #process track
         df_results = pd.DataFrame()

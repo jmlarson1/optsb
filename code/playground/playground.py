@@ -53,7 +53,7 @@ indexing = []
 for episode in range(num_episodes):
     # initialize new episode params
     state = env.reset()
-    state = torch.tensor(state.to_numpy()).to(device).float()
+    state = torch.tensor(state).to(device).float()
     done = False
     rewards_current_episode = 0
 
