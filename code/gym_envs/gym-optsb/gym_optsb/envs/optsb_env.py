@@ -15,11 +15,10 @@ class OptSBEnv(gym.Env):
         self.bucket = None
         self.obs_type = 'sim'
         self.optimal_reward_value = -0.1
-        self.action = [0.,0.,0.,0.,0.,0.,0.,0.,0.]#change action space to 6 values?, up/down for each
-        #yes, then apply action to get new values i.e., pick max for each magnet then apply
         self.quad_vals = [0.,0.,0.]
         self.obs = pd.DataFrame()
-        self.action_space = gym.spaces.Discrete(9)
+        self.action_space = gym.spaces.Discrete(6)
+        self.action = -1 #6 up/down for each
         self.observation_space = gym.spaces.Box(low=-np.inf,high=np.inf, shape=(6,), dtype=np.float64)
         print('State space dim is: ', self.observation_space)
         self.reward = 0.
@@ -36,7 +35,7 @@ class OptSBEnv(gym.Env):
         #apply action, get updated state
         done = False
         self.action = action
-        self.iteration_action.append(np.argmax(np.array(action)))
+        self.iteration_action.append(action)
 
         self.state, state_done = self._get_observation()
         self.iteration_quad_vals.append(self.state[:3])
@@ -58,25 +57,14 @@ class OptSBEnv(gym.Env):
         self.iteration_radius = [] # x,y,r
         self.iteration_quad_vals = [] # 1,2,3
         self.iteration_action = [] #index 0-8
-        self.action = [0.,0.,0.,0.,0.,0.,0.,0.,0.] # u/d/s actions x3 quads
+        self.action = -1 # u/d actions x3 quads
         self.quad_vals = self.rs.get_quad_vals() #set random starting vals
         self.state, _ = self._get_observation()
-        # print(self.state)
-        # self.state = np.ones(self.observation_space.shape)
-        #self.state.flatten().astype(np.float64)
-        # print(self.state.dtype)
-        # print(self.state.shape)
         return self.state
-    
-    def querry_action(self):
-        random_actions = np.random.uniform(0., 1., 9)
-        self.action = np.zeros_like(random_actions)
-        self.action[np.argmax(random_actions)] = 1.
-        return self.action #self.rs.get_quad_vals() #[1100,-1900,1200]
-    
-    def get_action(self,qvalues):
-        self.action = np.zeros_like(qvalues)
-        self.action[np.argmax(qvalues)] = 1.
+
+    def get_action_from_qvals(self,qvalues):
+        self.action = -1 #np.zeros_like(qvalues)
+        self.action = np.argmax(qvalues)
         return self.action
 
     def _get_observation(self): #pull data from database (sim or exp)??

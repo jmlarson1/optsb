@@ -42,14 +42,11 @@ env.reset()
 
 #%%
 #params
-num_episodes = 1
-num_steps = 2
+num_episodes = 2
+num_steps = 20
 
 #%% 
 #MAIN RUN
-iterate_reward = []
-accumulative_reward = []
-indexing = []
 for episode in range(num_episodes):
     # initialize new episode params
     state = env.reset()
@@ -58,19 +55,16 @@ for episode in range(num_episodes):
     rewards_current_episode = 0
 
     for step in tqdm.tqdm(range(num_steps), desc=f'Run {episode}'):
-        action = env.querry_action()
+        action = env.action_space.sample()
         print("action: {}".format(action))
         next_state, reward, done, info = env.step(action)
-        iterate_reward.append(reward)
-        #accumulative_reward.append(iterate_reward.sum())
-        indexing.append(episode*num_steps+step)
         if (done):
             print("Break Before Final Step: {}".format(step))
             break
-print(iterate_reward)
+    env.render()
+#print(iterate_reward)
 #%% Should collate all data into df each row is step
 
-env.render()
 
 
 # %%

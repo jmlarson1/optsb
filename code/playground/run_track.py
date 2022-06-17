@@ -106,24 +106,11 @@ class RunTRACK():
 
     def mod_quad_vals(self,action,quad_vals):
         dt_size = 100. # units to change quad vals
-        dt_dir = [1., -1., 0.]
-        dt = []
-        dt.append(sum(action[0:3])*dt_dir[np.argmax(action[:3])])
-        dt.append(sum(action[3:6])*dt_dir[np.argmax(action[3:6])])
-        dt.append(sum(action[6:9])*dt_dir[np.argmax(action[6:9])])
-        print("dt values: {}".format(dt))
-        #quad_vals = [0.,0.,0.]
-        if (sum(action) == 0):
-            quad_vals[0] = random()*2000.
-            quad_vals[1] = random()*(-2000.)
-            quad_vals[2] = random()*2000.
-        else:
-            for i in range(3):
-                quad_vals[i] = quad_vals[i] + dt_size * dt[i]
-            # tmp_np = np.array(quad_vals)
-            # tmp_np[tmp_np > 2000.] = 2000. 
-            # tmp_np[tmp_np < -2000.] = -2000. 
-            # quad_vals = list(tmp_np)
+        dt_dir = [1.,-1.,1.,-1.,1.,-1.]
+        dt = dt_dir[action]
+        for i in range(3):
+            if (i*2<=action and i*2+1>=action):
+                quad_vals[i] = quad_vals[i] + dt_size * dt
         return quad_vals
 
     def get_quad_vals(self):
