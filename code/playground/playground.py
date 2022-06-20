@@ -43,7 +43,7 @@ env.reset()
 #%%
 #params
 num_episodes = 2
-num_steps = 5
+num_steps = 20
 
 #%% 
 #MAIN RUN
@@ -61,6 +61,7 @@ for episode in range(num_episodes):
         if (done):
             print("Break Before Final Step: {}".format(step))
             break
+
     env.render()
 #print(iterate_reward)
 #%% Should collate all data into df each row is step

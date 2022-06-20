@@ -40,9 +40,10 @@ class OptSBEnv(gym.Env):
 
         self.state, state_done = self._get_observation()
         self.iteration_quad_vals.append(self.state[:3].tolist())
-        print("quad val for print: {}".format(self.iteration_quad_vals))
-        print("slice {}".format(self.iteration_quad_vals[:][0]))
+        # print("quad val for print: {}".format(self.iteration_quad_vals))
+        # print("slice {}".format(self.iteration_quad_vals[0][2]))
         self.iteration_beam_vals.append(self.state[3:].tolist())
+        print("beam vals: {}".format(self.iteration_beam_vals))
         self.reward, reward_done = self._calculate_reward()
         self.iteration_reward.append(self.reward)
         self.cummulative_reward.append(sum(self.iteration_reward))
@@ -60,6 +61,7 @@ class OptSBEnv(gym.Env):
         self.iteration_radius = [] # x,y,r
         self.iteration_quad_vals = [] # 1,2,3
         self.iteration_action = [] #index 0-8
+        self.iteration_beam_vals = []
         self.action = -1 # u/d actions x3 quads
         self.quad_vals = self.rs.get_quad_vals() #set random starting vals
         self.state, _ = self._get_observation()
@@ -149,6 +151,8 @@ class OptSBEnv(gym.Env):
         indexing = []
         for i in range(len(self.iteration_reward)):
             indexing.append(i)
+        qvals = np.array(self.iteration_quad_vals)
+        bvals = np.array(self.iteration_beam_vals)
         fig = go.Figure()
         fig.add_trace(go.Scatter(name='reward',x=indexing,y=self.iteration_reward))
         fig.add_trace(go.Scatter(name='action',x=indexing,y=self.iteration_action))
@@ -157,8 +161,17 @@ class OptSBEnv(gym.Env):
         fig.show()
 
         fig_state = go.Figure()
-        fig_state.add_trace(go.Scatter(name="Quad1",x=indexing,y=self.iteration_quad_vals[:][0]))
+        fig_state.add_trace(go.Scatter(name="Quad1",x=indexing,y=qvals[:,0]))
+        fig_state.add_trace(go.Scatter(name="Quad2",x=indexing,y=qvals[:,1]))
+        fig_state.add_trace(go.Scatter(name="Quad3",x=indexing,y=qvals[:,2]))
         fig_state.update_xaxes(title='step number')
+        fig_state.update_yaxes(title="Quad Vals")
         fig_state.show()
 
-        fig_state.show()
+        fig_beam = go.Figure()
+        fig_beam.add_trace(go.Scatter(name="1",x=indexing,y=bvals[:,0]))
+        fig_beam.add_trace(go.Scatter(name="2",x=indexing,y=bvals[:,1]))
+        fig_beam.add_trace(go.Scatter(name="3",x=indexing,y=bvals[:,2]/1000.0))
+        fig_beam.update_xaxes(title='step number')
+        fig_beam.update_yaxes(title="Beam Vals")
+        fig_beam.show()
