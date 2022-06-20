@@ -27,7 +27,8 @@ class OptSBEnv(gym.Env):
         self.iteration_transmission = [] #trans fraction
         self.iteration_radius = [] # x,y,r
         self.iteration_quad_vals = [] # 1,2,3
-        self.iteration_action = [] #index 0-8
+        self.iteration_action = [] #index 0-5
+        self.iteration_beam_vals = [] # beam stuff
         self.state = np.ones(self.observation_space.shape[0])
         self.rs = RunTRACK()
 
@@ -38,8 +39,10 @@ class OptSBEnv(gym.Env):
         self.iteration_action.append(action)
 
         self.state, state_done = self._get_observation()
-        self.iteration_quad_vals.append(self.state[:3])
-
+        self.iteration_quad_vals.append(self.state[:3].tolist())
+        print("quad val for print: {}".format(self.iteration_quad_vals))
+        print("slice {}".format(self.iteration_quad_vals[:][0]))
+        self.iteration_beam_vals.append(self.state[3:].tolist())
         self.reward, reward_done = self._calculate_reward()
         self.iteration_reward.append(self.reward)
         self.cummulative_reward.append(sum(self.iteration_reward))
@@ -152,3 +155,10 @@ class OptSBEnv(gym.Env):
         fig.add_trace(go.Scatter(name='transmission',x=indexing,y=self.iteration_transmission))
         fig.update_xaxes(title='step number')
         fig.show()
+
+        fig_state = go.Figure()
+        fig_state.add_trace(go.Scatter(name="Quad1",x=indexing,y=self.iteration_quad_vals[:][0]))
+        fig_state.update_xaxes(title='step number')
+        fig_state.show()
+
+        fig_state.show()

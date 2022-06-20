@@ -54,7 +54,7 @@ class RunTRACK():
         return self.run_dir
 
     def set_track(self,run_dir,quad_vals):
-        print("quad_vals: {}".format(quad_vals))
+        #print("quad_vals: {}".format(quad_vals))
         track_input_files = ['track.dat','sclinac.dat','fi_in.dat']
         for file_name in track_input_files:
             cp_file1 = os.path.join(self.base_dir,file_name)

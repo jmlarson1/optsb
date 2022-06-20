@@ -43,7 +43,7 @@ env.reset()
 #%%
 #params
 num_episodes = 2
-num_steps = 20
+num_steps = 5
 
 #%% 
 #MAIN RUN
