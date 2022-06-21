@@ -1,5 +1,6 @@
 
 *.pyc
+*.DS_Store
 code/gym_envs/gym-optsb/package.json
 code/gym_envs/gym-optsb/gym_optsb.egg-info/top_level.txt
 code/gym_envs/gym-optsb/gym_optsb.egg-info/SOURCES.txt
