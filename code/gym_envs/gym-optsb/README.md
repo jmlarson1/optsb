@@ -5,5 +5,5 @@ Gym environment(s) for optsb. Start with general (gym_optsb) and then build cust
     - Changed to 6 values only, u/d for 3 quads and believe it is consistent throughout
  - [ ] normalize all state / obs data to -1, 1 -> then adjust state Box space
  - [ ] separate file to choose state input variables
- - [ ] similar flexibility with rewards
- - [ ] always more interesting plots needed
+ - [ ] more choice / flexibility with rewards
+ - [ ] always more interesting plots needed [sub plots pref]

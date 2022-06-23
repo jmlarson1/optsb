@@ -15,6 +15,7 @@ class OptSBEnv(gym.Env):
         self.bucket = None
         self.obs_type = 'sim'
         self.optimal_reward_value = -0.1
+        self.reward_type = 0
         self.quad_vals = [0.,0.,0.]
         self.obs = pd.DataFrame()
         self.action_space = gym.spaces.Discrete(6)
@@ -131,17 +132,23 @@ class OptSBEnv(gym.Env):
             return None
 
     def _calculate_reward(self): # if needed beyond what is inside step
-        #reward from XY size
+        #general stuff
         reward_value = 0.
+        factor = 1.
         xrms = self.obs.iloc[0]['Xrms']
         yrms = self.obs.iloc[0]['Yrms']
         radius_squared = xrms*xrms + yrms*yrms
         self.iteration_radius.append([xrms,yrms,radius_squared])
         transmission_fraction = self.obs.iloc[0]['part_left']/1000.
         self.iteration_transmission.append(transmission_fraction)
-        factor = 1.
-        reward_value = -1.*radius_squared - factor*(1.-transmission_fraction)
-        reward_done = False
+
+        if (self.reward_type == 0): #reward from XY size
+            reward_value = -1.*radius_squared - factor*(1.-transmission_fraction)
+            reward_done = False
+        else:
+            reward_value = -100.
+            reward_done = False
+
         if (reward_value > self.optimal_reward_value or transmission_fraction < 0.1):
             reward_done = True
         return reward_value, reward_done
