@@ -36,17 +36,21 @@ env = gym.make("optsb-v0")
 #env = gym.make("MountainCar-v0")
 obs_space = env.observation_space
 action_space = env.action_space
-print("The observation space: {}".format(obs_space))
-print("The action space: {}".format(action_space))
+print("The observation space: {}".format(obs_space.shape[0]))
+print("The action space: {}".format(action_space.n))
 env.reset()
 
 #%%
 #params
-num_episodes = 2
-num_steps = 20
-
+num_episodes = 1
+num_steps = 3
+epsilon = 1.
+hidden_dim1 = 10
+hidden_dim2 = 20
 #%% 
 #MAIN RUN
+print(random.random())
+policy = MultiLayerPolicy(obs_space.shape[0],hidden_dim1,hidden_dim2,action_space.n)
 for episode in range(num_episodes):
     # initialize new episode params
     state = env.reset()
@@ -55,8 +59,14 @@ for episode in range(num_episodes):
     rewards_current_episode = 0
 
     for step in tqdm.tqdm(range(num_steps), desc=f'Run {episode}'):
-        action = env.action_space.sample()
-        print("action: {}".format(action))
+        if (random.random() < epsilon):
+            print("Random")
+            action = env.action_space.sample()
+        else:
+            q_vals = policy(state) #returns a torch tenser
+            print(q_vals)
+            action = env.get_action_from_qvals(q_vals.detach().numpy())
+        print("action (qvalues): {} ({})".format(action,q_vals.detach().numpy()))
         next_state, reward, done, info = env.step(action)
         if (done):
             print("Break Before Final Step: {}".format(step))
