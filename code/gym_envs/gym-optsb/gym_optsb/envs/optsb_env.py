@@ -15,7 +15,7 @@ class OptSBEnv(gym.Env):
         self.bucket = None
         self.obs_type = 'sim'
         self.optimal_reward_value = -0.1
-        self.reward_type = 0
+        self.reward_type = 1
         self.quad_vals = [0.,0.,0.]
         self.obs = pd.DataFrame()
         self.action_space = gym.spaces.Discrete(6)
@@ -145,8 +145,8 @@ class OptSBEnv(gym.Env):
         if (self.reward_type == 0): #reward from XY size
             reward_value = -1.*radius_squared - factor*(1.-transmission_fraction)
             reward_done = False
-        else:
-            reward_value = -100.
+        if (self.reward_type == 1): #reward from transmission only
+            reward_value = -(1.-transmission_fraction)
             reward_done = False
 
         if (reward_value > self.optimal_reward_value or transmission_fraction < 0.1):
