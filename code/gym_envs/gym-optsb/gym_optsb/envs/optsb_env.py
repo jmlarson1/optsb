@@ -15,7 +15,7 @@ class OptSBEnv(gym.Env):
         self.bucket = None
         self.obs_type = 'sim'
         self.optimal_reward_value = -0.1
-        self.reward_type = 1
+        self.reward_type = 0
         self.quad_vals = [0.,0.,0.]
         self.obs = pd.DataFrame()
         self.action_space = gym.spaces.Discrete(6)
@@ -44,7 +44,7 @@ class OptSBEnv(gym.Env):
         # print("quad val for print: {}".format(self.iteration_quad_vals))
         # print("slice {}".format(self.iteration_quad_vals[0][2]))
         self.iteration_beam_vals.append(self.state[3:].tolist())
-        print("beam vals: {}".format(self.iteration_beam_vals))
+        #print("beam vals: {}".format(self.iteration_beam_vals))
         self.reward, reward_done = self._calculate_reward()
         self.iteration_reward.append(self.reward)
         self.cummulative_reward.append(sum(self.iteration_reward))
