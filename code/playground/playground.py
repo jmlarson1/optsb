@@ -71,14 +71,14 @@ class ReplayBuffer():
 #%%
 #params
 num_episodes = 4
-num_steps = 200
+num_steps = 10
 epsilon = 0.5
 hidden_dim1 = 10
 hidden_dim2 = 20
-buffer_size = 30
-train_freq = 20
+buffer_size = 4
+train_freq = 2
 update_freq = train_freq
-batch_size = 20
+batch_size = 2
 gamma = 0.5
 
 #%% 
@@ -107,6 +107,9 @@ for episode in range(num_episodes):
         next_state, reward, done, info = env.step(action)
         # save to memory/replay buffer rbuff
         rbuff.put((state,action,reward,next_state,done))
+        if (done):
+            print("Break Before Final Step: {}".format(step))
+            break
         # if buffer filled & certain iteration, get sample, calc Q, losses, update policy
         if step > batch_size and step%train_freq==0:
             s_states, s_actions, s_rewards, s_next_states, s_dones = rbuff.sample(batch_size)
@@ -127,12 +130,6 @@ for episode in range(num_episodes):
         # update the target network
         if step % update_freq == 0:
             target.load_state_dict(policy.state_dict())
-        
-        if (done):
-            step = num_steps
-            print("Break Before Final Step: {}".format(step))
-            #break
-
         #always move the state
         state = next_state
     env.render()
