@@ -14,8 +14,8 @@ class OptSBEnv(gym.Env):
         self.client = None
         self.bucket = None
         self.obs_type = 'sim'
-        self.optimal_reward_value = -0.01
-        self.reward_type = 1
+        self.optimal_reward_value = -1.
+        self.reward_type = 0
         self.quad_vals = [0.,0.,0.]
         self.obs = pd.DataFrame()
         self.action_space = gym.spaces.Discrete(6)
@@ -92,9 +92,16 @@ class OptSBEnv(gym.Env):
         run_dir = self.rs.set_dir()
         print("old quad vals: {}".format(self.quad_vals))
         new_quad_vals = self.rs.mod_quad_vals(self.action, self.quad_vals) #quad_vals = apply_action()
+        for j in range(len(new_quad_vals)):
+            new_quad_vals[j] = 1999. if new_quad_vals[j] > 2000. else new_quad_vals[j]
+            new_quad_vals[j] = -1999. if new_quad_vals[j] < -2000. else new_quad_vals[j]
+        new_quad_vals[0] = 0. if new_quad_vals[0] < 0. else new_quad_vals[0]   
+        new_quad_vals[1] = 0. if new_quad_vals[1] > 0. else new_quad_vals[1]   
+        new_quad_vals[2] = 0. if new_quad_vals[2] < 0. else new_quad_vals[2]   
+
+            #sim_done = True
         print("new quad vals: {}".format(new_quad_vals))
-        if ( any(i >= 2000 for i in new_quad_vals) or any(i <= -2000 for i in new_quad_vals) ):
-            sim_done = True
+        self.quad_vals = new_quad_vals
         #quad val check to set "done"
         self.rs.set_track(run_dir,new_quad_vals)
         self.rs.run_track(run_dir)
@@ -134,7 +141,7 @@ class OptSBEnv(gym.Env):
     def _calculate_reward(self): # if needed beyond what is inside step
         #general stuff
         reward_value = 0.
-        factor = 1.
+        factor = 10.
         xrms = self.obs.iloc[0]['Xrms']
         yrms = self.obs.iloc[0]['Yrms']
         radius_squared = xrms*xrms + yrms*yrms
@@ -148,8 +155,13 @@ class OptSBEnv(gym.Env):
         if (self.reward_type == 1): #reward from transmission only
             reward_value = -(1.-transmission_fraction)
             reward_done = False
-
-        if (reward_value > self.optimal_reward_value or transmission_fraction < 0.1):
+        if ( any(i == 1999. for i in self.quad_vals) ):
+            reward_value-=10.
+        if ( any(i == -1999. for i in self.quad_vals) ):
+            reward_value-=10.
+        if ( any(i == 0. for i in self.quad_vals) ):
+            reward_value-=10.
+        if (reward_value > self.optimal_reward_value):
             reward_done = True
         return reward_value, reward_done
     

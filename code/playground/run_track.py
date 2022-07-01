@@ -105,7 +105,7 @@ class RunTRACK():
             fig_step.show()
 
     def mod_quad_vals(self,action,quad_vals):
-        dt_size = 10. # units to change quad vals
+        dt_size = 50. # units to change quad vals
         dt_dir = [1.,-1.,1.,-1.,1.,-1.]
         dt = dt_dir[action]
         for i in range(3):

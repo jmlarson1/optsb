@@ -6,6 +6,7 @@
 # - - conditions include, 
 # - - -max values on quads/DONE, transmission < XXX%/DONE, reward high/DONE
 # - if max quads outside range set = 2000 (will still trigger 'done=True' too)
+# -- instead force to 2000 and give bad reward?
 # - document / fix all output array value types (array, np, df, etc.)
 # RL Q_Learning
 # - try to get the simple q-learning going again
@@ -74,16 +75,16 @@ class ReplayBuffer():
 
 #%%
 #params
-num_episodes = 5
+num_episodes = 1
 num_steps = 5000
 epsilon = 1.0
-hidden_dim1 = 10
+hidden_dim1 = 20
 hidden_dim2 = 10
-buffer_size = 100
+buffer_size = 200
 train_freq = 100
 update_freq = train_freq
 batch_size = 100
-gamma = 1.0
+gamma = 0.5
 
 #%% 
 #MAIN RUN
@@ -124,7 +125,7 @@ for episode in range(num_episodes):
                 target_max = torch.max(policy.forward(NormData(np.abs(s_next_states))), dim=1)[0]
                 td_target = torch.Tensor(s_rewards).to(device) + gamma * target_max * (1 - torch.Tensor(s_dones).to(device))
             old_val = policy.forward(NormData(np.abs(s_states))).gather(1, torch.LongTensor(s_actions).view(-1,1).to(device)).squeeze()
-            print("target_max: {} td_target: {}".format(target_max,td_target))
+            print("old_val: {} target_max: {} td_target: {}".format(old_val,target_max,td_target))
             loss = loss_fn(td_target, old_val)
             # optimize the model
             optimizer.zero_grad()
@@ -132,9 +133,10 @@ for episode in range(num_episodes):
             loss_iterate.append(loss.item()) #need convert loss tensor to float()
             #nn.utils.clip_grad_norm_(list(policy.parameters()), max_grad_norm)
             optimizer.step()
-
+            env.render()
         # update the target network
         if step % update_freq == 0:
+            print("=!=!=update target network=!=!=")
             target.load_state_dict(policy.state_dict())
         #always move the state
         state = next_state
