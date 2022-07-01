@@ -32,6 +32,10 @@ from influxdb_client import InfluxDBClient, Point, WritePrecision
 from influx_client import InfluxClient
 from run_track import RunTRACK
 from nn_policy import MultiLayerPolicy
+from sklearn import preprocessing
+min_max_scaler = preprocessing.MinMaxScaler()
+def NormData(data):
+    return (data - np.min(data)) / (np.max(data) - np.min(data))
 device = torch.device('cpu')
 
 
@@ -70,16 +74,16 @@ class ReplayBuffer():
 
 #%%
 #params
-num_episodes = 4
-num_steps = 10
-epsilon = 0.5
+num_episodes = 5
+num_steps = 5000
+epsilon = 1.0
 hidden_dim1 = 10
-hidden_dim2 = 20
-buffer_size = 4
-train_freq = 2
+hidden_dim2 = 10
+buffer_size = 100
+train_freq = 100
 update_freq = train_freq
-batch_size = 2
-gamma = 0.5
+batch_size = 100
+gamma = 1.0
 
 #%% 
 #MAIN RUN
@@ -97,11 +101,13 @@ for episode in range(num_episodes):
     optimizer = optim.Adam(policy.parameters())
     loss_fn = nn.MSELoss()
     for step in tqdm.tqdm(range(num_steps), desc=f'Run {episode}'):
+        epsilon = 1.0 - step/num_steps*1.0
+        epsilon = 0.4
         if (random.random() < epsilon):
             print("Random")
             action = env.action_space.sample()
         else:
-            q_vals = policy(state) #returns a torch tenser
+            q_vals = policy(NormData(np.abs(state))) #returns a torch tenser
             action = env.get_action_from_qvals(q_vals.detach().numpy())
         #print("action (qvalues): {} ({})".format(action,q_vals.detach().numpy()))
         next_state, reward, done, info = env.step(action)
@@ -115,9 +121,9 @@ for episode in range(num_episodes):
             s_states, s_actions, s_rewards, s_next_states, s_dones = rbuff.sample(batch_size)
             print("*****Inside training:*****")
             with torch.no_grad():
-                target_max = torch.max(policy.forward(s_next_states), dim=1)[0]
+                target_max = torch.max(policy.forward(NormData(np.abs(s_next_states))), dim=1)[0]
                 td_target = torch.Tensor(s_rewards).to(device) + gamma * target_max * (1 - torch.Tensor(s_dones).to(device))
-            old_val = policy.forward(s_states).gather(1, torch.LongTensor(s_actions).view(-1,1).to(device)).squeeze()
+            old_val = policy.forward(NormData(np.abs(s_states))).gather(1, torch.LongTensor(s_actions).view(-1,1).to(device)).squeeze()
             print("target_max: {} td_target: {}".format(target_max,td_target))
             loss = loss_fn(td_target, old_val)
             # optimize the model

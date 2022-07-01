@@ -14,8 +14,8 @@ class OptSBEnv(gym.Env):
         self.client = None
         self.bucket = None
         self.obs_type = 'sim'
-        self.optimal_reward_value = -0.1
-        self.reward_type = 0
+        self.optimal_reward_value = -0.01
+        self.reward_type = 1
         self.quad_vals = [0.,0.,0.]
         self.obs = pd.DataFrame()
         self.action_space = gym.spaces.Discrete(6)
