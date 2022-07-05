@@ -141,7 +141,7 @@ class OptSBEnv(gym.Env):
     def _calculate_reward(self): # if needed beyond what is inside step
         #general stuff
         reward_value = 0.
-        factor = 10.
+        factor = 100.
         xrms = self.obs.iloc[0]['Xrms']
         yrms = self.obs.iloc[0]['Yrms']
         radius_squared = xrms*xrms + yrms*yrms
@@ -157,10 +157,13 @@ class OptSBEnv(gym.Env):
             reward_done = False
         if ( any(i == 1999. for i in self.quad_vals) ):
             reward_value-=10.
+            reward_done = True
         if ( any(i == -1999. for i in self.quad_vals) ):
             reward_value-=10.
+            reward_done = True
         if ( any(i == 0. for i in self.quad_vals) ):
             reward_value-=10.
+            reward_done = True
         if (reward_value > self.optimal_reward_value):
             reward_done = True
         return reward_value, reward_done
