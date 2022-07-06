@@ -72,7 +72,7 @@ def linear_schedule(start_e: float, end_e: float, duration: int, t: int):
     slope =  (end_e - start_e) / duration
     return max(slope * t + start_e, end_e)
 
-buffer_size = 1_000
+buffer_size = 10_000
 lr = 1e-5
 
 rb = ReplayBuffer(buffer_size)
@@ -102,6 +102,7 @@ gamma = 0.99
 episode = 0
 episode_rewards = []
 step_rewards = []
+step_loss = []
 
 for global_step in range(total_timesteps):
 
@@ -128,6 +129,7 @@ for global_step in range(total_timesteps):
             td_target = torch.Tensor(s_rewards).to(device) + gamma * target_max * (1 - torch.Tensor(s_dones).to(device))
         old_val = q_network.forward(s_obs, device).gather(1, torch.LongTensor(s_actions).view(-1,1).to(device)).squeeze()
         loss = loss_fn(td_target, old_val)
+        step_loss.append(loss.item())
 
         # optimize the midel
         optimizer.zero_grad()
@@ -151,4 +153,5 @@ for global_step in range(total_timesteps):
 
 import matplotlib.pyplot as plt
 plt.plot(episode_rewards)
+plt.plot(step_loss)
 plt.show()
