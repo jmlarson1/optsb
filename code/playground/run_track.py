@@ -20,6 +20,7 @@ pio.templates.default = "mycolor"
 
 class RunTRACK():
     def __init__(self):
+        self.doShowPlot = False
         self.run_with_testing = 1
         self.run_dir = ""
         #make below 'more' generic
@@ -53,7 +54,7 @@ class RunTRACK():
         return self.run_dir
 
     def set_track(self,run_dir,quad_vals):
-        print("quad_vals: {}".format(quad_vals))
+        #print("quad_vals: {}".format(quad_vals))
         track_input_files = ['track.dat','sclinac.dat','fi_in.dat']
         for file_name in track_input_files:
             cp_file1 = os.path.join(self.base_dir,file_name)
@@ -100,23 +101,16 @@ class RunTRACK():
         fig_step.update_xaxes(title="distance [cm]",range=[0,900])
         fig_step.update_yaxes(title="size [cm]",range=[0,4])
         fig_step.write_image("profile.png")
-        #fig_step.show()
+        if (self.doShowPlot):
+            fig_step.show()
 
     def mod_quad_vals(self,action,quad_vals):
-        dt_size = 100. # units to change quad vals
-        dt_dir = [1., -1., 0.]
-        #quad_vals = [0.,0.,0.]
-        if (sum(action) == 0):
-            quad_vals[0] = random()*2000.
-            quad_vals[1] = random()*(-2000.)
-            quad_vals[2] = random()*2000.
-        else:
-            for i in range(3):
-                quad_vals[i] = quad_vals[i] + dt_size * dt_dir[np.argmax(action[0:3])]
-            tmp_np = np.array(quad_vals)
-            tmp_np[tmp_np > 2000.] = 2000. 
-            tmp_np[tmp_np < -2000.] = -2000. 
-            quad_vals = list(tmp_np)
+        dt_size = 50. # units to change quad vals
+        dt_dir = [1.,-1.,1.,-1.,1.,-1.]
+        dt = dt_dir[action]
+        for i in range(3):
+            if (i*2<=action and i*2+1>=action):
+                quad_vals[i] = quad_vals[i] + dt_size * dt
         return quad_vals
 
     def get_quad_vals(self):

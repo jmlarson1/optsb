@@ -81,15 +81,15 @@ def linear_schedule(start_e: float, end_e: float, duration: int, t: int):
 
 #%%
 #params
-num_episodes = 4_000
+num_episodes = 2_000
 num_steps = 10_000
 epsilon = 1.0
-hidden_dim1 = 20
-hidden_dim2 = 30
-buffer_size = 500
-train_freq = 20
-batch_size = 100
-update_freq = 200
+hidden_dim1 = 64
+hidden_dim2 = 64
+buffer_size = 1_000
+train_freq = 10
+batch_size = 64
+update_freq = 100
 gamma = 0.99
 
 #%% 
@@ -112,7 +112,7 @@ for episode in range(num_episodes):
     reward_total = 0
     for step in range(num_steps):
         counter+=1
-        epsilon = linear_schedule(1.0,0.05,num_episodes,episode)
+        epsilon = linear_schedule(1.0,0.05,10*num_steps,counter)
         if (random.random() < epsilon):
             action = env.action_space.sample()
         else:
