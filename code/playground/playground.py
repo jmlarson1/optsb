@@ -84,12 +84,12 @@ def linear_schedule(start_e: float, end_e: float, duration: int, t: int):
 num_episodes = 4_000
 num_steps = 10_000
 epsilon = 1.0
-hidden_dim1 = 64
-hidden_dim2 = 64
-buffer_size = 10_000
-train_freq = 10
-batch_size = 64
-update_freq = 100
+hidden_dim1 = 20
+hidden_dim2 = 30
+buffer_size = 500
+train_freq = 20
+batch_size = 100
+update_freq = 200
 gamma = 0.99
 
 #%% 
