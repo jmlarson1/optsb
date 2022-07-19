@@ -26,7 +26,7 @@ try:
 
       response = data.split(",")
       #could make some below variables for future
-      dbwrite = "influx -execute \'insert fc,tag=cross value={}\' -database=db".format(response[0])
+      dbwrite = "influx -execute \'insert fc,tag=cross value={}\' -database=db".format(float(response[0]))
       os.system(dbwrite)
       print("{:.0f}".format(time.time()), response[0])
 except KeyboardInterrupt:
