@@ -1,6 +1,7 @@
 #!/usr/bin/python
 import serial
 import time
+import os
 
 inst = serial.Serial(port='/dev/ttyUSB0',
 			baudrate=9600,
@@ -24,6 +25,9 @@ try:
 #      print(data)
 
       response = data.split(",")
+      #could make some below variables for future
+      dbwrite = "influx -execute \'insert fc,tag=cross value={}\' -database=db".format(response[0])
+      os.system(dbwrite)
       print("{:.0f}".format(time.time()), response[0])
 except KeyboardInterrupt:
    inst.close()
@@ -38,3 +42,7 @@ except KeyboardInterrupt:
 #def current(self):
 #   command = ":MEASure:CURRent?" + "\r"
 #   value = query(command)
+
+# influx write based on this
+#    databaseStr.Form("influx -execute \'insert %s,%s value=%f\' -database=%s", seriesName.Data(), tag.Data(), value, databaseName.c_str());
+#     system(databaseStr.Data());
