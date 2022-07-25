@@ -8,7 +8,7 @@ inst = serial.Serial(port='/dev/ttyUSB0',
 			bytesize=serial.EIGHTBITS,
 			parity=serial.PARITY_NONE,
 			stopbits=serial.STOPBITS_ONE,
-			timeout=1)
+			timeout=5)
 
 if inst.isOpen():
    inst.close()
