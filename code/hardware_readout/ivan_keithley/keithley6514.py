@@ -1,4 +1,5 @@
 #!/usr/bin/python
+from curses.ascii import isdigit
 import serial
 import time
 import os
@@ -8,7 +9,7 @@ inst = serial.Serial(port='/dev/ttyUSB0',
 			bytesize=serial.EIGHTBITS,
 			parity=serial.PARITY_NONE,
 			stopbits=serial.STOPBITS_ONE,
-			timeout=5)
+			timeout=1)
 
 if inst.isOpen():
    inst.close()
@@ -26,8 +27,12 @@ try:
 
       response = data.split(",")
       #could make some below variables for future
-      value=float(response[0])*(-1000000000000.)
-      dbwrite = "influx -execute \'insert fc,tag=cross value={}\' -database=db".format(value)
+      value=float(response[0])*(1000000000000.)
+      if (float(value)):
+         dbwrite = "influx -execute \'insert fc,tag=cross value={}\' -database=db".format(value)
+      else:
+         dbwrite = "influx -execute \'insert fc,tag=cross value={}\' -database=db".format(value)
+      
       os.system(dbwrite)
       #print("{:.0f}".format(time.time()), response[0])
 except KeyboardInterrupt:
