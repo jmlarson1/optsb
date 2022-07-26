@@ -4,6 +4,14 @@ import serial
 import time
 import os
 
+def is_floatvalue(s):
+   try:
+      float(s)
+      return True
+   except ValueError:
+      return False
+
+
 inst = serial.Serial(port='/dev/ttyUSB0',
 			baudrate=9600,
 			bytesize=serial.EIGHTBITS,
@@ -27,11 +35,11 @@ try:
 
       response = data.split(",")
       #could make some below variables for future
-      value=float(response[0])*(1000000000000.)
-      if (float(value)):
+      if is_floatvalue(response[0]):
+         value=float(response[0])*(1000000000000.)
          dbwrite = "influx -execute \'insert fc,tag=cross value={}\' -database=db".format(value)
       else:
-         dbwrite = "influx -execute \'insert fc,tag=cross value={}\' -database=db".format(value)
+         time.sleep(1)
       
       os.system(dbwrite)
       #print("{:.0f}".format(time.time()), response[0])
