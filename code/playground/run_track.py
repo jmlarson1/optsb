@@ -29,11 +29,11 @@ class RunTRACK():
         #print(self.main_dir)
         if (temp == "playground"):
             self.track_dir = self.main_dir + "/track/build/"
-            self.base_dir = self.main_dir + "/track/sps_line/"
+            self.base_dir = self.main_dir + "/track/full_line/"
         else:
             self.main_dir, _ = os.path.split(self.main_dir)
             self.track_dir = self.main_dir + "/build/"
-            self.base_dir = self.main_dir + "/sps_line/"
+            self.base_dir = self.main_dir + "/full_line/"
         #print(self.base_dir)
         self.track_exe="TRACKv39C.exe"
         #print(int(datetime.utcnow().strftime("%Y%m%d%H%M%S")))
