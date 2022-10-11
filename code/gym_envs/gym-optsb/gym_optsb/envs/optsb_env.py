@@ -18,6 +18,13 @@ class OptSBEnv(gym.Env):
         self.reward_type = 0
         self.quad_vals = [0.,0.,0.]
         self.obs = pd.DataFrame()
+        self.min_action = [0.0,-1.0,0.0]
+        self.max_action = [1.0,0.0,1.0]
+        self.max_quad_val = 2000.0
+        self.min_quad_val = -2000.0
+        # self.action_space = gym.spaces.Box(
+        #     low=self.min_action, high=self.max_action, shape=(3,), dtype=np.float32
+        # )
         self.action_space = gym.spaces.Discrete(6)
         self.action = -1 #6 up/down for each
         self.observation_space = gym.spaces.Box(low=-np.inf,high=np.inf, shape=(6,), dtype=np.float64)
@@ -36,7 +43,7 @@ class OptSBEnv(gym.Env):
     def step(self, action): #required for env
         #apply action, get updated state
         done = False
-        self.action = action
+        self.action = action #self.action[i] = min(max(action[i], self.min_action[i]), self.max_action[i]) * self.max_quad_val[i]
         self.iteration_action.append(action)
 
         self.state, state_done = self._get_observation()
