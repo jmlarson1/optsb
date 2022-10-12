@@ -177,31 +177,6 @@ class OptSBEnv(gym.Env):
         return reward_value, reward_done
     
     def render(self, mode="human"): #decide what to draw from env
-        print("Drawing env figures")
-        indexing = []
-        for i in range(len(self.iteration_reward)):
-            indexing.append(i)
-        qvals = np.array(self.iteration_quad_vals)
-        bvals = np.array(self.iteration_beam_vals)
         fig = go.Figure()
-        fig.add_trace(go.Scatter(name='reward',x=indexing,y=self.iteration_reward))
-        fig.add_trace(go.Scatter(name='action',x=indexing,y=self.iteration_action))
-        fig.add_trace(go.Scatter(name='transmission',x=indexing,y=self.iteration_transmission))
-        fig.update_xaxes(title='step number')
+        fig.add_trace(go.Scatter(name='XY',x=self.obs['Xrms'],y=self.obs['Yrms']))
         fig.show()
-
-        fig_state = go.Figure()
-        fig_state.add_trace(go.Scatter(name="Quad1",x=indexing,y=qvals[:,0]))
-        fig_state.add_trace(go.Scatter(name="Quad2",x=indexing,y=qvals[:,1]))
-        fig_state.add_trace(go.Scatter(name="Quad3",x=indexing,y=qvals[:,2]))
-        fig_state.update_xaxes(title='step number')
-        fig_state.update_yaxes(title="Quad Vals")
-        fig_state.show()
-
-        fig_beam = go.Figure()
-        fig_beam.add_trace(go.Scatter(name="1",x=indexing,y=bvals[:,0]))
-        fig_beam.add_trace(go.Scatter(name="2",x=indexing,y=bvals[:,1]))
-        fig_beam.add_trace(go.Scatter(name="3",x=indexing,y=bvals[:,2]/1000.0))
-        fig_beam.update_xaxes(title='step number')
-        fig_beam.update_yaxes(title="Beam Vals")
-        fig_beam.show()

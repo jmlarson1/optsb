@@ -48,7 +48,7 @@ class RunTRACK():
             self.run_dir = os.path.join(self.base_dir, f"sim_{date_time}")
         #print(self.run_dir)
         if (os.path.isdir(self.run_dir)):
-            print("directory exists")
+            print("")
         else:
             os.mkdir(self.run_dir)
         return self.run_dir
@@ -133,7 +133,7 @@ class RunTRACK():
     def run_track(self,run_dir):
         os.chdir(run_dir)
         completed = subprocess.call(
-            "wine64 " + str(os.path.join(self.track_dir, self.track_exe)), shell=True
+            "WINEDEBUG=-all wine64 " + str(os.path.join(self.track_dir, self.track_exe)) + "", shell=True
         )
         os.listdir()
 
