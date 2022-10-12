@@ -28,7 +28,7 @@ class OptSBEnv(gym.Env):
         self.action_space = gym.spaces.Discrete(6)
         self.action = -1 #6 up/down for each
         self.observation_space = gym.spaces.Box(low=-np.inf,high=np.inf, shape=(6,), dtype=np.float64)
-        print('State space dim is: ', self.observation_space)
+        #print('State space dim is: ', self.observation_space)
         self.reward = 0.
         self.cummulative_reward = []
         self.iteration_reward = [] #reward
@@ -97,7 +97,7 @@ class OptSBEnv(gym.Env):
         df_results = pd.DataFrame()
         sim_done = False
         run_dir = self.rs.set_dir()
-        print("old quad vals: {}".format(self.quad_vals))
+        #print("old quad vals: {}".format(self.quad_vals))
         new_quad_vals = self.rs.mod_quad_vals(self.action, self.quad_vals) #quad_vals = apply_action()
         for j in range(len(new_quad_vals)):
             new_quad_vals[j] = 1999. if new_quad_vals[j] > 2000. else new_quad_vals[j]
@@ -107,7 +107,7 @@ class OptSBEnv(gym.Env):
         new_quad_vals[2] = 0. if new_quad_vals[2] < 0. else new_quad_vals[2]   
 
             #sim_done = True
-        print("new quad vals: {}".format(new_quad_vals))
+        #print("new quad vals: {}".format(new_quad_vals))
         self.quad_vals = new_quad_vals
         #quad val check to set "done"
         self.rs.set_track(run_dir,new_quad_vals)
@@ -117,17 +117,18 @@ class OptSBEnv(gym.Env):
         #should make below more digestible for selecting obs values
         #could also choose to pull data from other "z" positions
         #now just pulling very last point at the "target" position
-        df_temp = {'run_dir' : run_dir,
-        'Q1': new_quad_vals[0], 'Q2': new_quad_vals[1], 'Q3': new_quad_vals[2],
-        'Xrms': df_beam['x_rms[cm]'].values[len(df_beam.index)-1], 
-        'Yrms': df_beam['y_rms[cm]'].values[len(df_beam.index)-1],
-        'ax': df_beam['a_x'].values[len(df_beam.index)-1], 
-        'ay': df_beam['a_y'].values[len(df_beam.index)-1],
-        'az': df_beam['a_z'].values[len(df_beam.index)-1],
-        'part_lost': df_beam['#of_part_lost'].values[len(df_beam.index)-1],
-        'part_left': df_beam['#of_part_left'].values[len(df_beam.index)-1]
-        }
-        df_results = df_results.append(df_temp, ignore_index = True)
+        df_temp = pd.DataFrame({'run_dir' : [run_dir],
+        'Q1': [new_quad_vals[0]], 'Q2': [new_quad_vals[1]], 'Q3': [new_quad_vals[2]],
+        'Xrms': [df_beam['x_rms[cm]'].values[len(df_beam.index)-1]], 
+        'Yrms': [df_beam['y_rms[cm]'].values[len(df_beam.index)-1]],
+        'ax': [df_beam['a_x'].values[len(df_beam.index)-1]], 
+        'ay': [df_beam['a_y'].values[len(df_beam.index)-1]],
+        'az': [df_beam['a_z'].values[len(df_beam.index)-1]],
+        'part_lost': [df_beam['#of_part_lost'].values[len(df_beam.index)-1]],
+        'part_left': [df_beam['#of_part_left'].values[len(df_beam.index)-1]]
+        })
+        df_results = pd.concat([df_results,df_temp])
+        #print(df_results['Q1'])
         return df_results, sim_done
        
 
