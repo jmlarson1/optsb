@@ -41,9 +41,9 @@ device = torch.device('cpu')
 
 
 #%% gym setup
-#env = gym.make("optsb-v0")
+env = gym.make("optsb-v0")
 #env = gym.make("MountainCar-v0")
-env = gym.make("CartPole-v1")
+#env = gym.make("CartPole-v1")
 env.seed(1234)
 obs_space = env.observation_space
 action_space = env.action_space
