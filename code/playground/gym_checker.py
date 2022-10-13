@@ -27,22 +27,20 @@ if (checkit) :
   with pytest.warns(Warning):
     check_env(env=env, warn=True)
 
-# from stable_baselines3 import PPO
+from stable_baselines3 import PPO
+model = PPO("MlpPolicy", env, verbose=1)
+model.learn(total_timesteps=1)
 
-# env = gym.make("optsb-v0")
 
-# model = PPO("MlpPolicy", env, verbose=1)
-# model.learn(total_timesteps=10_000)
-
+quadvals_iterate = []
 obs = env.reset()
-for i in range(20):
-  obs, reward, done, info = env.step(env.action_space.sample())
-  print("obs: {}, reward: {}, done: {}".format(obs, reward, done))
-  env.render()
-#     action, _states = model.predict(obs, deterministic=True)
-#     
-#     env.render()
-#     if done:
-#       obs = env.reset()
-
-# env.close()
+for i in range(100):
+  action, _states = model.predict(obs, deterministic=True)
+  obs, reward, done, info = env.step(action) #env.action_space.sample())
+  print("obs: {}, reward: {}, done: {}".format(obs[0], reward, done))
+  #quadvals_iterate.append(obs)
+  #print(quadvals_iterate[0][0])
+  # env.render()
+  if done:
+    obs = env.reset()
+env.close()
