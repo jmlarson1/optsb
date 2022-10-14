@@ -37,6 +37,7 @@ class RunTRACK():
         #print(self.base_dir)
         self.track_exe="TRACKv39C.exe"
         #print(int(datetime.utcnow().strftime("%Y%m%d%H%M%S")))
+        self.counter = 0
 
     # mkdir new run dir w/ date or number
     def set_dir(self):
@@ -77,6 +78,10 @@ class RunTRACK():
             file.writelines(lines)
 
     def plot_track(self,df_beam,df_coord,df_step,quad_vals):
+        self.counter+=1
+        if (self.counter == 1):
+            completed = subprocess.call("rm -rf profiles/profile*.png", shell=True)
+
         fig_step = go.Figure()
         quad_size=30.
         for i in range(3):
@@ -100,7 +105,20 @@ class RunTRACK():
         text="Q1 {:.3f}, Q2 {:.3f}, Q3 {:.3f}".format(quad_vals[0],quad_vals[1],quad_vals[2]))
         fig_step.update_xaxes(title="distance [cm]",range=[0,900])
         fig_step.update_yaxes(title="size [cm]",range=[0,4])
-        fig_step.write_image("profile.png")
+        if (self.counter < 10):
+            fig_step.write_image(f"profiles/profile0000{self.counter}.png")
+        if(self.counter > 9 and self.counter < 100):
+            fig_step.write_image(f"profiles/profile000{self.counter}.png")
+        if(self.counter > 99 and self.counter < 1000):
+            fig_step.write_image(f"profiles/profile00{self.counter}.png")
+        if(self.counter > 999 and self.counter < 10000):
+            fig_step.write_image(f"profiles/profile0{self.counter}.png")
+        if(self.counter > 9999 and self.counter < 10000):
+            fig_step.write_image(f"profiles/profile{self.counter}.png")
+
+        #os.chdir()
+        # if (self.counter%100 == 0):
+        #     completed = subprocess.call("convert -delay 50 profiles/profile*.png out.gif", shell=True)
         if (self.doShowPlot):
             fig_step.show()
 

@@ -14,8 +14,8 @@ class OptSBEnv(gym.Env):
         self.client = None
         self.bucket = None
         self.obs_type = 'sim'
-        self.optimal_reward_value = -1.
-        self.reward_type = 0
+        self.optimal_reward_value = -0.1
+        self.reward_type = 1
         self.quad_vals = [0.,0.,0.]
         self.obs = pd.DataFrame()
         self.min_action = [0.0,-1.0,0.0]
@@ -79,6 +79,9 @@ class OptSBEnv(gym.Env):
         self.action = -1 #np.zeros_like(qvalues)
         self.action = np.argmax(qvalues)
         return self.action
+    
+    def get_optimal_reward_value(self):
+        return self.optimal_reward_value
 
     def _get_observation(self): #pull data from database (sim or exp)??
         #if sim, run sim -> get vals directly
@@ -156,6 +159,9 @@ class OptSBEnv(gym.Env):
         self.iteration_radius.append([xrms,yrms,radius_squared])
         transmission_fraction = self.obs.iloc[0]['part_left']/1000.
         self.iteration_transmission.append(transmission_fraction)
+        if (transmission_fraction < 0.1):
+            transmission_fraction = 0.1
+            reward_done = True
 
         if (self.reward_type == 0): #reward from XY size
             reward_value = -1.*radius_squared - factor*(1.-transmission_fraction)

@@ -87,42 +87,45 @@ def linear_schedule(start_e: float, end_e: float, duration: int, t: int):
 
 # %%
 #pio.renderers.default = "png"
-good_vals = []
-good_indexing = []
 def plotter():
-    indexing = []
-    episode_indexing = []
-    for i in range(len(loss_iterate)):
-        indexing.append(i)
-    for i in range(len(reward_iterate)):
-        episode_indexing.append(i)
-        if reward_iterate[i] > -1.:
-            good_vals.append(reward_iterate[i])
-            good_indexing.append(i)
-
-    fig_reward = go.Figure()
-    fig_reward.add_trace(go.Scatter(name='reward',x=episode_indexing,y=reward_iterate))
-    fig_reward.add_trace(go.Scatter(name='good rewards',x=good_indexing,y=good_vals,mode='markers'))
+#rewards
+    fig_reward = make_subplots(rows=2,cols=1,shared_xaxes=True,vertical_spacing=0.02) #go.Figure()
+    fig_reward.add_trace(go.Scatter(name='reward',x=episode_indexing,y=reward_iterate,mode='lines'),row=1,col=1)
+    fig_reward.add_trace(go.Scatter(name='good rewards',x=episode_good_indexing,y=reward_good_iterate,mode='markers'),row=1,col=1)
+    fig_reward.add_trace(go.Scatter(name='reward total',x=episode_indexing,y=reward_total_iterate,mode='lines'),row=2,col=1)
+    fig_reward.add_trace(go.Scatter(name='good total rewards',x=episode_good_indexing,y=reward_good_total_iterate,mode='markers'),row=2,col=1)
     fig_reward.update_xaxes(title='episode number')
-    fig_reward.write_image("reward.png")
-    fig_reward_tot = go.Figure()
-    fig_reward_tot.add_trace(go.Scatter(name='reward total',x=episode_indexing,y=reward_total_iterate))
-    fig_reward_tot.update_xaxes(title='episode number')
-    fig_reward_tot.write_image("reward_tot.png")
+    fig_reward.write_image("reward.png", width=1200, height=800)
+
+#steps
     fig_step = go.Figure()
-    fig_step.add_trace(go.Scatter(name='steps',x=episode_indexing,y=steps_iterate))
+    fig_step.add_trace(go.Scatter(name='steps',x=episode_indexing,y=steps_iterate,mode='lines'))
+    fig_step.add_trace(go.Scatter(name='steps',x=episode_good_indexing,y=steps_good_iterate,mode='markers'))
     fig_step.update_xaxes(title='steps during episode')
-    fig_step.write_image("step.png")
-    fig_q = go.Figure()
-    fig_q.add_trace(go.Scatter(name='quad1',x=episode_indexing,y=quadvals1_iterate))
-    fig_q.add_trace(go.Scatter(name='quad2',x=episode_indexing,y=quadvals2_iterate))
-    fig_q.add_trace(go.Scatter(name='quad3',x=episode_indexing,y=quadvals3_iterate))
+    fig_step.write_image("step.png",width=1200,height=600)
+
+#state
+    fig_q = make_subplots(2,3,shared_xaxes=True,vertical_spacing=0.02)
+    fig_q.add_trace(go.Scatter(name='quad1',x=episode_indexing,y=quadvals1_iterate,mode='lines'),row=1,col=1)
+    fig_q.add_trace(go.Scatter(name='good quad1',x=episode_good_indexing,y=quadvals1_good_iterate,mode='markers'),row=2,col=1)
+    fig_q.update_yaxes(range=[0,2000],row=1,col=1)
+    fig_q.update_yaxes(range=[0,2000],row=2,col=1)
+    fig_q.add_trace(go.Scatter(name='quad2',x=episode_indexing,y=quadvals2_iterate,mode='lines'),row=1,col=2)
+    fig_q.add_trace(go.Scatter(name='good quad2',x=episode_good_indexing,y=quadvals2_good_iterate,mode='markers'),row=2,col=2)
+    fig_q.update_yaxes(range=[-2000,0],row=1,col=2)
+    fig_q.update_yaxes(range=[-2000,0],row=2,col=2)
+    fig_q.add_trace(go.Scatter(name='quad3',x=episode_indexing,y=quadvals3_iterate,mode='lines'),row=1,col=3)
+    fig_q.add_trace(go.Scatter(name='good quad3',x=episode_good_indexing,y=quadvals3_good_iterate,mode='markers'),row=2,col=3)
+    fig_q.update_yaxes(range=[0,2000],row=1,col=3)  
+    fig_q.update_yaxes(range=[0,2000],row=2,col=3)
     fig_q.update_xaxes(title='episode number')
-    fig_q.write_image("quads.png")
+    fig_q.write_image("quads.png", width=1200, height=800)
+
+#loss
     fig_loss = go.Figure()
-    fig_loss.add_trace(go.Scatter(name='reward total',x=indexing,y=loss_iterate))
+    fig_loss.add_trace(go.Scatter(name='loss',x=train_indexing,y=loss_iterate))
     fig_loss.update_xaxes(title='training number')
-    fig_loss.write_image("loss_tot.png")
+    fig_loss.write_image("loss_tot.png",width=1200,height=600)
 
 
 #%%
@@ -140,6 +143,9 @@ gamma = 0.99
 
 #%% 
 #MAIN RUN
+episode_indexing = []
+step_indexing = []
+train_indexing = []
 loss_iterate = []
 reward_iterate = []
 reward_total_iterate = []
@@ -147,6 +153,18 @@ quadvals1_iterate = []
 quadvals2_iterate = []
 quadvals3_iterate = []
 steps_iterate = []
+#goods
+episode_good_indexing = []
+step_good_indexing = []
+#train_good_indexing = []
+#loss_good_iterate = []
+reward_good_iterate = []
+reward_good_total_iterate = []
+quadvals1_good_iterate = []
+quadvals2_good_iterate = []
+quadvals3_good_iterate = []
+steps_good_iterate = []
+#sums
 reward_total = 0.
 
 policy = MultiLayerPolicy(obs_space.shape[0],hidden_dim1,hidden_dim2,action_space.n)
@@ -194,6 +212,10 @@ for episode in range(num_episodes):
             nn.utils.clip_grad_norm_(list(policy.parameters()), 1.)
             optimizer.step()
             loss_iterate.append(loss.item())
+            train_indexing.append(counter)
+
+            #loss_good_iterate.append(
+
         # update the target network
         if counter % update_freq == 0:
             #print("=!=!=update target network=!=!=")
@@ -203,12 +225,21 @@ for episode in range(num_episodes):
 
         if (done):
             print("BREAK epi {} Total Reward: {} at {} step [sumstep {}] (epsilon {})".format(episode,reward_total,step,counter,epsilon))
+            episode_indexing.append(episode)
             reward_total_iterate.append(reward_total)
             reward_iterate.append(reward)
             quadvals1_iterate.append(quadvals1)
             quadvals2_iterate.append(quadvals2)
             quadvals3_iterate.append(quadvals3)
             steps_iterate.append(step)
+            if (reward > env.get_optimal_reward_value()):
+                episode_good_indexing.append(episode)
+                reward_good_iterate.append(reward)
+                reward_good_total_iterate.append(reward_total)
+                quadvals1_good_iterate.append(quadvals1)
+                quadvals2_good_iterate.append(quadvals2)
+                quadvals3_good_iterate.append(quadvals3)
+                steps_good_iterate.append(step)
             plotter()
             break
     #env.render()
