@@ -1,8 +1,11 @@
 #!/usr/bin/python
 from curses.ascii import isdigit
+from socket import timeout
 import serial
 import time
 import os
+
+readtime=0.5 #how often to querry in seconds
 
 def is_floatvalue(s):
    try:
@@ -17,14 +20,17 @@ inst = serial.Serial(port='/dev/ttyUSB0',
 			bytesize=serial.EIGHTBITS,
 			parity=serial.PARITY_NONE,
 			stopbits=serial.STOPBITS_ONE,
-			timeout=1)
+			timeout=readtime)
 
 if inst.isOpen():
    inst.close()
    inst.open()
 
+print("Connected, waiting 2 seconds before starting reads...")
+time.sleep(2)
 inst.write(':CONFigure:VOLTage\r')
 
+print("reading.")
 try:
    while True:
 #      inst.write(':MEASure:VOLTage?\r')
@@ -38,11 +44,10 @@ try:
       if is_floatvalue(response[0]):
          value=float(response[0])*(1000000000000.)
          dbwrite = "influx -execute \'insert fc,tag=cross value={}\' -database=db".format(value)
+         os.system(dbwrite)
+         #print("{:.0f}".format(time.time()), response[0])
       else:
-         time.sleep(1)
-      
-      os.system(dbwrite)
-      #print("{:.0f}".format(time.time()), response[0])
+         time.sleep(readtime)
 except KeyboardInterrupt:
    inst.close()
    pass
