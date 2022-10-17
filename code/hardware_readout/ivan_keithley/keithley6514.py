@@ -5,7 +5,7 @@ import serial
 import time
 import os
 
-readtime=0.5 #how often to querry in seconds
+readtime=0.5 #how often to query in seconds
 
 def is_floatvalue(s):
    try:
