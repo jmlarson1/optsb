@@ -130,15 +130,15 @@ def plotter():
 
 #%%
 #params
-num_episodes = 1_000
+num_episodes = 5_000
 num_steps = 10_000
 epsilon = 0.5
 hidden_dim1 = 64
 hidden_dim2 = 64
 buffer_size = 1_000
-train_freq = 10
-batch_size = 64
-update_freq = 100
+train_freq = 50
+batch_size = 100
+update_freq = 200
 gamma = 0.99
 
 #%% 

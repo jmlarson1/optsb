@@ -15,7 +15,7 @@ from tensorboardX import SummaryWriter
 
 '''
 Implementation of Deep Deterministic Policy Gradients (DDPG) with pytorch 
-riginal paper: https://arxiv.org/abs/1509.02971
+original paper: https://arxiv.org/abs/1509.02971
 Not the author's implementation !
 '''
 

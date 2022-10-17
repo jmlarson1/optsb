@@ -22,11 +22,11 @@ class OptSBEnv(gym.Env):
         self.max_action = [1.0,0.0,1.0]
         self.max_quad_val = 2000.0
         self.min_quad_val = -2000.0
-        # self.action_space = gym.spaces.Box(
-        #     low=self.min_action, high=self.max_action, shape=(3,), dtype=np.float32
-        # )
-        self.action_space = gym.spaces.Discrete(6)
-        self.action = -1 #6 up/down for each
+        self.action_space = gym.spaces.Box(
+            low=self.min_action, high=self.max_action, shape=(3,), dtype=np.float32
+        )
+        #self.action_space = gym.spaces.Discrete(6)
+        self.action = np.zeros(3) #-1. #6 up/down for each
         self.observation_space = gym.spaces.Box(low=-np.inf,high=np.inf, shape=(6,), dtype=np.float64)
         #print('State space dim is: ', self.observation_space)
         self.reward = 0.
@@ -40,11 +40,11 @@ class OptSBEnv(gym.Env):
         self.state = np.ones(self.observation_space.shape[0])
         self.rs = RunTRACK()
 
-    def step(self, action): #required for env
+    def step(self, action: np.ndarray): #required for env
         #apply action, get updated state
         done = False
         self.action = action #self.action[i] = min(max(action[i], self.min_action[i]), self.max_action[i]) * self.max_quad_val[i]
-        self.iteration_action.append(action)
+        #self.iteration_action.append(action)
 
         self.state, state_done = self._get_observation()
         self.iteration_quad_vals.append(self.state[:3].tolist())
@@ -170,13 +170,13 @@ class OptSBEnv(gym.Env):
             reward_value = -(1.-transmission_fraction)
             reward_done = False
         if ( any(i == 1999. for i in self.quad_vals) ):
-            reward_value-=10.
+            reward_value-=1.
             reward_done = True
         if ( any(i == -1999. for i in self.quad_vals) ):
-            reward_value-=10.
+            reward_value-=1.
             reward_done = True
         if ( any(i == 0. for i in self.quad_vals) ):
-            reward_value-=10.
+            reward_value-=1.
             reward_done = True
         if (reward_value > self.optimal_reward_value):
             reward_done = True
