@@ -9,7 +9,7 @@ from influxdb_client.rest import ApiException
 #%%
 # setup / check db connection
 bucket = "my-bucket"
-client = InfluxDBClient(url="http://raisordaq.onenet:8086") #, token="my-token", org="my-org")
+client = InfluxDBClient(url="http://raisordaq.onenet:8086", token="my-token", org="my-org")
 #write_api = client.write_api(write_options=SYNCHRONOUS)
 
 """Check that the InfluxDB is running."""
@@ -22,7 +22,7 @@ print("ok")
 """Check that the credentials has permission to query from the Bucket"""
 print("> Checking credentials for query ...", end=" ")
 try:
-    client.query_api().query(f"from(bucket:\"{bucket}\") |> range(start: -1m) |> limit(n:1)", org)
+    client.query_api().query(f"from(bucket:\"{bucket}\") |> range(start: -1m) |> limit(n:1)", "my-org")
 except ApiException as e:
     # missing credentials
     if e.status == 404:
