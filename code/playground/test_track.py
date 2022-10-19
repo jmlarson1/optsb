@@ -31,11 +31,11 @@ rs = RunTRACK()
 for i in range(5):
     run_dir = rs.set_dir()
     act = np.zeros(6)
-    qd = [1000,-1000,1000]
+    qd = [471.,-607.,579.]
     #quad_vals = rs.mod_quad_vals(act,qd) #adjusts based on action
     quad_vals = rs.get_quad_vals() # random values
     #quad_vals = [1098.47,-1985.25,1242.06]
-    # quad_vals = [944.70844639, -2444.46523034, 1524.3123095]
+    #quad_vals = qd #[944.70844639, -2444.46523034, 1524.3123095]
     print(quad_vals)
     rs.set_track(run_dir,quad_vals)
     rs.run_track(run_dir)

@@ -225,6 +225,7 @@ for episode in range(num_episodes):
 
         if (done):
             print("BREAK epi {} Total Reward: {} at {} step [sumstep {}] (epsilon {})".format(episode,reward_total,step,counter,epsilon))
+            print("Quadvals {} {} {} Reward {})".format(quadvals1,quadvals2,quadvals3,reward))
             episode_indexing.append(episode)
             reward_total_iterate.append(reward_total)
             reward_iterate.append(reward)
