@@ -1,3 +1,4 @@
+#%%
 import pandas as pd
 import gym
 import gym_optsb
@@ -15,27 +16,32 @@ import numpy as np
 import collections
 from nn_policy import MultiLayerPolicy
 from sklearn import preprocessing
-import gym_hybrid
+#import gym_hybrid
 import gym_optsb
 import pytest
 from stable_baselines3.common.env_checker import check_env
 
+#%%
 env = gym.make("optsb-v0")
 
+#%%
 checkit = False
 if (checkit) :
   with pytest.warns(Warning):
     check_env(env=env, warn=True)
 
+#%%
 from stable_baselines3 import PPO
 model = PPO("MlpPolicy", env, verbose=1)
-model.learn(total_timesteps=1)
+#model.learn(total_timesteps=1)
 
 
 quadvals_iterate = []
 obs = env.reset()
-for i in range(100):
-  action, _states = model.predict(obs, deterministic=True)
+for i in range(5):
+  #action, _states = model.predict(obs, deterministic=True)
+  action = env.action_space.sample()
+  print(action)
   obs, reward, done, info = env.step(action) #env.action_space.sample())
   print("obs: {}, reward: {}, done: {}".format(obs[0], reward, done))
   #quadvals_iterate.append(obs)
@@ -44,3 +50,4 @@ for i in range(100):
   if done:
     obs = env.reset()
 env.close()
+# %%

@@ -20,7 +20,7 @@ pio.templates.default = "mycolor"
 
 class RunTRACK():
     def __init__(self):
-        self.doShowPlot = False
+        self.doShowPlot = True
         self.run_with_testing = 1
         self.run_dir = ""
         #make below 'more' generic
@@ -122,14 +122,14 @@ class RunTRACK():
         if (self.doShowPlot):
             fig_step.show()
 
-    def mod_quad_vals(self,action,quad_vals):
-        dt_size = 20. # units to change quad vals
-        dt_dir = [1.,-1.,1.,-1.,1.,-1.]
-        dt = dt_dir[action]
-        for i in range(3):
-            if (i*2<=action and i*2+1>=action):
-                quad_vals[i] = quad_vals[i] + dt_size * dt
-        return quad_vals
+    # def mod_quad_vals(self,action,quad_vals):
+    #     dt_size = 20. # units to change quad vals
+    #     dt_dir = [1.,-1.,1.,-1.,1.,-1.]
+    #     dt = dt_dir[action]
+    #     for i in range(3):
+    #         if (i*2<=action and i*2+1>=action):
+    #             quad_vals[i] = quad_vals[i] + dt_size * dt
+    #     return quad_vals
 
     def get_quad_vals(self):
         quad_vals = [1150,-1800,1000]
