@@ -20,7 +20,7 @@ pio.templates.default = "mycolor"
 
 class RunTRACK():
     def __init__(self):
-        self.doShowPlot = True
+        self.doShowPlot = False
         self.run_with_testing = 1
         self.run_dir = ""
         #make below 'more' generic
