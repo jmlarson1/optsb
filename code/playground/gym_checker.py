@@ -41,13 +41,14 @@ obs = env.reset()
 for i in range(5):
   #action, _states = model.predict(obs, deterministic=True)
   action = env.action_space.sample()
-  print(action)
+  print("action: ",action)
   obs, reward, done, info = env.step(action) #env.action_space.sample())
   print("obs: {}, reward: {}, done: {}".format(obs[0], reward, done))
   #quadvals_iterate.append(obs)
   #print(quadvals_iterate[0][0])
   # env.render()
   if done:
+    print("Done...")
     obs = env.reset()
 env.close()
 # %%

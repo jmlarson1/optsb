@@ -16,13 +16,14 @@ class OptSBEnv(gym.Env):
         self.obs_type = 'sim'
         self.optimal_reward_value = -0.1
         self.reward_type = 1
-        self.quad_vals = [0.,0.,0.]
+        self.quad_vals = np.array([0.,0.,0.])
         self.obs = pd.DataFrame()
         self.min_action = np.array([0.0,-1.0,0.0])
         self.max_action = np.array([1.0,0.0,1.0])
         self.max_quad_val = np.array([2000.0,0.000,2000.])
         self.min_quad_val = np.array([0.0,-2000.0,0.0])
-        self.action_space = gym.spaces.Box(low=self.min_action, high=self.max_action, shape=(3,), dtype=np.float32)
+        self.delta_quad_val = np.array([50.0,50.0,50.0])
+        self.action_space = gym.spaces.Box(low=-1., high=1., shape=(3,), dtype=np.float32)
         #self.action_space = gym.spaces.Discrete(6)
         self.action = np.zeros(3) #-1. #6 up/down for each
         #print(self.action)
@@ -42,8 +43,9 @@ class OptSBEnv(gym.Env):
     def step(self, action: np.ndarray): #required for env
         #apply action, get updated state
         done = False
-        self.action = action * 2000.
-        print(self.action)
+        for i in range(len(self.action)):
+            self.action[i] = action[i] * self.delta_quad_val[i]
+        print("Action: ",self.action)
         self.state, state_done = self._get_observation()
         self.iteration_quad_vals.append(self.state[:3].tolist())
         #print("quad val for print: {}".format(self.iteration_quad_vals))
@@ -98,9 +100,14 @@ class OptSBEnv(gym.Env):
         df_results = pd.DataFrame()
         sim_done = False
         run_dir = self.rs.set_dir()
-        self.quad_vals = self.action
+        print("Before: ",self.quad_vals)
+        for qnum in range(len(self.quad_vals)):
+            self.quad_vals[qnum] = self.quad_vals[qnum] + self.action[qnum]
+            #quad val check to set "done"
+            if self.quad_vals[qnum] > self.max_quad_val[qnum] or self.quad_vals[qnum] < self.min_quad_val[qnum]:
+                sim_done = True
         new_quad_vals = self.quad_vals
-        #quad val check to set "done"
+        print("After: ",new_quad_vals)
         self.rs.set_track(run_dir,new_quad_vals)
         self.rs.run_track(run_dir)
         df_beam,df_coord,df_step = self.rs.get_output(run_dir)

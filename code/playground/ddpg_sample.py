@@ -197,11 +197,11 @@ class DDPG(object):
             self.num_critic_update_iteration += 1
 
     def save(self):
-        torch.save(self.actor.state_dict(), directory + 'actor.pth')
-        torch.save(self.critic.state_dict(), directory + 'critic.pth')
-        # print("====================================")
-        # print("Model has been saved...")
-        # print("====================================")
+        #torch.save(self.actor.state_dict(), directory + 'actor.pth')
+        #torch.save(self.critic.state_dict(), directory + 'critic.pth')
+         print("====================================")
+         print("Model has been saved...")
+         print("====================================")
 
     def load(self):
         self.actor.load_state_dict(torch.load(directory + 'actor.pth'))
