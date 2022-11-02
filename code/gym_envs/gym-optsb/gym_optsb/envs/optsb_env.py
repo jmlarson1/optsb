@@ -1,6 +1,6 @@
 import gym
-from influxdb_client import InfluxDBClient, Point, WritePrecision
-from influx_client import InfluxClient
+#from influxdb_client import InfluxDBClient, Point, WritePrecision
+#from influx_client import InfluxClient
 from datetime import datetime
 from run_track import RunTRACK
 import pandas as pd
