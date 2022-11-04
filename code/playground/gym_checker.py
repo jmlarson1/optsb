@@ -14,7 +14,7 @@ import torch.nn.functional as F
 import tqdm
 import numpy as np
 import collections
-from nn_policy import MultiLayerPolicy
+#from nn_policy import MultiLayerPolicy
 from sklearn import preprocessing
 #import gym_hybrid
 import gym_optsb
