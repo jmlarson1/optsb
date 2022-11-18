@@ -19,31 +19,40 @@ pio.templates["mycolor"] = go.layout.Template(
 pio.templates.default = "mycolor"
 
 class RunTRACK():
-    def __init__(self):
+    def __init__(self,track_line="sps_line"):
         self.doShowPlot = False
-        self.run_with_testing = 1
+        self.run_with_testing = 2
         self.run_dir = ""
+        self.base_dir = ""
+        self.track_dir = ""
+        self.track_line = track_line
         #make below 'more' generic
         self.current_dir = os.getcwd()
         self.main_dir, temp = os.path.split(os.getcwd()) #assumes working from playground dir
         #print(self.main_dir)
         if (temp == "playground"):
             self.track_dir = self.main_dir + "/track/build/"
-            self.base_dir = self.main_dir + "/track/sps_line/"
+            self.base_dir = self.main_dir + "/track/" + self.track_line + "/"
         else:
             self.main_dir, _ = os.path.split(self.main_dir)
             self.track_dir = self.main_dir + "/build/"
-            self.base_dir = self.main_dir + "/sps_line/"
-        #print(self.base_dir)
+            self.base_dir = self.main_dir + "/" + self.track_line + "/"
+        print(self.base_dir)
         self.track_exe="TRACKv39C.exe"
         #print(int(datetime.utcnow().strftime("%Y%m%d%H%M%S")))
         self.counter = 0
+        RunTRACK.set_dir(self)
+        RunTRACK.set_track(self)
 
     # mkdir new run dir w/ date or number
     def set_dir(self):
         if (self.run_with_testing == 1):
             self.run_dir = os.path.join(self.base_dir, "testing")
-        else:
+
+        if (self.run_with_testing == 2):
+            self.run_dir = os.path.join(self.base_dir, "working")
+
+        if (self.run_with_testing == 3):
             time.sleep(1.5) #needed to be sure new folder is made for loop
             date_time = int(datetime.utcnow().strftime("%Y%m%d%H%M%S"))
             self.run_dir = os.path.join(self.base_dir, f"sim_{date_time}")
@@ -54,28 +63,38 @@ class RunTRACK():
             os.mkdir(self.run_dir)
         return self.run_dir
 
-    def set_track(self,run_dir,quad_vals):
+    def set_track(self):
         #print("quad_vals: {}".format(quad_vals))
         track_input_files = ['track.dat','sclinac.dat','fi_in.dat']
         for file_name in track_input_files:
             cp_file1 = os.path.join(self.base_dir,file_name)
-            cp_file2 = os.path.join(run_dir,file_name)
+            cp_file2 = os.path.join(self.run_dir,file_name)
+            print(cp_file1)
+            print(cp_file2)
+            os.system(f"cp {cp_file1} {cp_file2}")
+
+    def mod_track(self,quad_vals):
+        #print("quad_vals: {}".format(quad_vals))
+        track_input_files = ['track.dat','sclinac.dat','fi_in.dat']
+        for file_name in track_input_files:
+            cp_file1 = os.path.join(self.base_dir,file_name)
+            cp_file2 = os.path.join(self.run_dir,file_name)
             #print(cp_file1)
             os.system(f"cp {cp_file1} {cp_file2}")
         #modify track input files as needed
-        sclinac_file = os.path.join(run_dir, "sclinac.dat")
-        with open(sclinac_file, "r") as file:
-            lines = file.readlines()
-            n_quad = 0
-            for i, line in enumerate(lines):
-                if "quad" in line:
-                    split_line = line.split()
-                    split_line[2] = str(quad_vals[n_quad])
-                    lines[i] = " ".join(split_line) + "\n"
-                    n_quad += 1
-                    # print(lines[i])
-        with open(sclinac_file, "w") as file:
-            file.writelines(lines)
+        # sclinac_file = os.path.join(run_dir, "sclinac.dat")
+        # with open(sclinac_file, "r") as file:
+        #     lines = file.readlines()
+        #     n_quad = 0
+        #     for i, line in enumerate(lines):
+        #         if "quad" in line:
+        #             split_line = line.split()
+        #             split_line[2] = str(quad_vals[n_quad])
+        #             lines[i] = " ".join(split_line) + "\n"
+        #             n_quad += 1
+        #             # print(lines[i])
+        # with open(sclinac_file, "w") as file:
+        #     file.writelines(lines)
 
     def plot_track(self,df_beam,df_coord,df_step,quad_vals):
         self.counter+=1
@@ -148,8 +167,8 @@ class RunTRACK():
         df_step = pd.read_csv(fname,header=0,delim_whitespace=True)
         return df_beam,df_coord,df_step
 
-    def run_track(self,run_dir):
-        os.chdir(run_dir)
+    def run_track(self):
+        os.chdir(self.run_dir)
         completed = subprocess.call(
             "WINEDEBUG=-all wine64 " + str(os.path.join(self.track_dir, self.track_exe)) + "", shell=True
         )

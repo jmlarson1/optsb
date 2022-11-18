@@ -1,5 +1,6 @@
 #%%
 import os
+import sys
 import subprocess
 from datetime import datetime
 from random import random
@@ -22,11 +23,29 @@ pio.templates.default = "mycolor"
 
 from run_track import RunTRACK
 
+#%% MAIN full line
+df_results = pd.DataFrame()
+quad_vals = []
+run_with_testing = 1
+rs = RunTRACK("transport_line/testing")
+
+for i in range(1):
+    #act = np.zeros(6)
+    #qd = [471.,-607.,579.]
+    #quad_vals = rs.mod_quad_vals(act,qd) #adjusts based on action
+    #quad_vals = rs.get_quad_vals() # random values
+    quad_vals = [1098.47,-1985.25,1242.06]
+    #quad_vals = qd #[944.70844639, -2444.46523034, 1524.3123095]
+    #print(quad_vals)
+    rs.run_track()
+
+print("exiting...now")
+sys.exit()
 #%% MAIN
 df_results = pd.DataFrame()
 quad_vals = []
 run_with_testing = 1
-rs = RunTRACK()
+rs = RunTRACK("sps_line")
 
 for i in range(5):
     run_dir = rs.set_dir()
