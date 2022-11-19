@@ -96,10 +96,10 @@ class RunTRACK():
         # with open(sclinac_file, "w") as file:
         #     file.writelines(lines)
 
-    def plot_track(self,df_beam,df_coord,df_step,quad_vals):
+    def plot_track(self,df_beam,df_coord,df_step):
         self.counter+=1
         if (self.counter == 1):
-            completed = subprocess.call("rm -rf profiles/profile*.png", shell=True)
+            completed = subprocess.call("rm -rf profile*.png", shell=True)
 
         fig_step = go.Figure()
         quad_size=30.
@@ -120,20 +120,19 @@ class RunTRACK():
         fig_step.add_trace(go.Scatter(name='Y-max',x=df_step['z[cm]'], 
         y=df_step['X-max[cm]'],mode='lines',marker_color=color[1],
         line_dash='dot'))
-        fig_step.add_annotation(showarrow=False,x=400,y=3.5,
-        text="Q1 {:.3f}, Q2 {:.3f}, Q3 {:.3f}".format(quad_vals[0],quad_vals[1],quad_vals[2]))
-        fig_step.update_xaxes(title="distance [cm]",range=[0,900])
-        fig_step.update_yaxes(title="size [cm]",range=[0,4])
+        fig_step.add_annotation(showarrow=False,x=400,y=3.5,)
+        fig_step.update_xaxes(title="distance [cm]",range=[0,2800])
+        fig_step.update_yaxes(title="size [cm]",range=[0,6])
         if (self.counter < 10):
-            fig_step.write_image(f"profiles/profile0000{self.counter}.png")
+            fig_step.write_image(f"profile0000{self.counter}.png")
         if(self.counter > 9 and self.counter < 100):
-            fig_step.write_image(f"profiles/profile000{self.counter}.png")
+            fig_step.write_image(f"profile000{self.counter}.png")
         if(self.counter > 99 and self.counter < 1000):
-            fig_step.write_image(f"profiles/profile00{self.counter}.png")
+            fig_step.write_image(f"profile00{self.counter}.png")
         if(self.counter > 999 and self.counter < 10000):
-            fig_step.write_image(f"profiles/profile0{self.counter}.png")
+            fig_step.write_image(f"profile0{self.counter}.png")
         if(self.counter > 9999 and self.counter < 10000):
-            fig_step.write_image(f"profiles/profile{self.counter}.png")
+            fig_step.write_image(f"profile{self.counter}.png")
 
         #os.chdir()
         # if (self.counter%100 == 0):
@@ -157,13 +156,13 @@ class RunTRACK():
         quad_vals[2] = random()*2000.
         return quad_vals
 
-    def get_output(self,run_dir):
-        fname=run_dir+'/beam.out'
+    def get_output(self):
+        fname=self.run_dir+'/beam.out'
         df_beam = pd.read_csv(fname,header=0,delim_whitespace=True)
         #print(df_beam.tail)
-        fname=run_dir+'/coord.out'
+        fname=self.run_dir+'/coord.out'
         df_coord = pd.read_csv(fname,header=0,delim_whitespace=True)
-        fname=run_dir+'/step.out'
+        fname=self.run_dir+'/step.out'
         df_step = pd.read_csv(fname,header=0,delim_whitespace=True)
         return df_beam,df_coord,df_step
 
