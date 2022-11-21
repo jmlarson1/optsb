@@ -101,11 +101,20 @@ class RunTRACK():
         if (self.counter == 1):
             completed = subprocess.call("rm -rf profile*.png", shell=True)
 
+#df.loc[df['B'].isin(['one','three'])]
         fig_step = go.Figure()
         quad_size=30.
-        for i in range(3):
-            fig_step.add_shape(type="rect",x0=df_beam['dist[m]'].values[i*2+2]*100-quad_size, 
-            y0=0, x1=df_beam['dist[m]'].values[i*2+2]*100, y1=3,
+        df_sub1 = df_beam.loc[df_beam['name'].isin(['quad'])]
+        for i in range(df_sub1.shape[0]):
+            fig_step.add_shape(type="rect",x0=df_sub1['dist[m]'].values[i]*100-quad_size, 
+            y0=0, x1=df_sub1['dist[m]'].values[i]*100, y1=3,
+            line=dict(width=0),fillcolor=color[5],opacity=0.25,layer='below'
+            )
+        quad_size=10.
+        df_sub1 = df_beam.loc[df_beam['name'].isin(['slit'])]
+        for i in range(df_sub1.shape[0]):
+            fig_step.add_shape(type="rect",x0=df_sub1['dist[m]'].values[i]*100-quad_size, 
+            y0=0, x1=df_sub1['dist[m]'].values[i]*100, y1=3,
             line=dict(width=0),fillcolor=color[6],opacity=0.25,layer='below'
             )
         fig_step.add_trace(go.Scatter(name='X-rms',x=df_step['z[cm]'], 
@@ -122,7 +131,8 @@ class RunTRACK():
         line_dash='dot'))
         fig_step.add_annotation(showarrow=False,x=400,y=3.5,)
         fig_step.update_xaxes(title="distance [cm]",range=[0,2800])
-        fig_step.update_yaxes(title="size [cm]",range=[0,6])
+        fig_step.update_yaxes(title="size [cm]",range=[0,3])
+        fig_step.update_layout(width=1200,height=600)
         if (self.counter < 10):
             fig_step.write_image(f"profile0000{self.counter}.png")
         if(self.counter > 9 and self.counter < 100):
