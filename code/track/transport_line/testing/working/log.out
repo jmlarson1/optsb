@@ -1,17 +1,31 @@
-  Task begin at  Nov 20,2022,23:16:07     
+  Task begin at  Nov 22,2022,13:24:35     
   I.D. generation random number seed=          100
   Wtmp=    8000.00000000000     
   Phmax, dWWmax=    180.000000000000        1.00000000000000     
   Phmax, dWWmax, pstat_q =    360.000000000000        1.00000000000000     
    1001.00000000000       0.000000000000000E+000  0.000000000000000E+000
   0.000000000000000E+000  0.000000000000000E+000  0.000000000000000E+000
-  Hard-edge Quad with fields for SC calculations 
-  Hard-edge Quad with fields for SC calculations 
-  Hard-edge Quad with fields for SC calculations 
-  Hard-edge Quad with fields for SC calculations 
-  Hard-edge Quad with fields for SC calculations 
-  Hard-edge Quad with fields for SC calculations 
-  Hard-edge Quad with fields for SC calculations 
+ 
+  Warning: This is a Hard-Edge Quad. using Matrix:
+  Space Charge Calculation is Not Included
+ 
+  Warning: This is a Hard-Edge Quad. using Matrix:
+  Space Charge Calculation is Not Included
+ 
+  Warning: This is a Hard-Edge Quad. using Matrix:
+  Space Charge Calculation is Not Included
+ 
+  Warning: This is a Hard-Edge Quad. using Matrix:
+  Space Charge Calculation is Not Included
+ 
+  Warning: This is a Hard-Edge Quad. using Matrix:
+  Space Charge Calculation is Not Included
+ 
+  Warning: This is a Hard-Edge Quad. using Matrix:
+  Space Charge Calculation is Not Included
+ 
+  Warning: This is a Hard-Edge Quad. using Matrix:
+  Space Charge Calculation is Not Included
   bmag_t: gap, width, g_2, w_2=    4.23200000000000        9.77800000000000     
    1.90440000000000        4.88900000000000     
   bmag_t: Qdesign, Adesign, Wtmp =    10.0000000000000     
@@ -77,9 +91,13 @@
    8000.00039540447     
   RefPartSet_t: phasa, Wtmp_out=    20.3229432581311     
    7999.99999999995     
+ 
+  Warning: This is a Hard-Edge Quad. using Matrix:
+  Space Charge Calculation is Not Included
+ 
+  Warning: This is a Hard-Edge Quad. using Matrix:
+  Space Charge Calculation is Not Included
   Hard-edge Quad with fields for SC calculations 
   Hard-edge Quad with fields for SC calculations 
   Hard-edge Quad with fields for SC calculations 
-  Hard-edge Quad with fields for SC calculations 
-  Hard-edge Quad with fields for SC calculations 
-    Task end at  Nov 20,2022,23:16:07     
+    Task end at  Nov 22,2022,13:24:35     
