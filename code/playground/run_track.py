@@ -14,6 +14,7 @@ import plotly.io as pio
 import math
 from scipy import special
 color = ['#983A38','#423155','#1D220F','#BF4D3B','#7F4772','#435F2B','#C4B690','#000000']
+color = ['#5495EF','#6EB887','#CE5F4E','#EB9F47','#E2E2E2','#506173','#ad7fa8','#000000']
 pio.templates["mycolor"] = go.layout.Template(
     layout_colorway=color)
 pio.templates.default = "mycolor"
