@@ -25,11 +25,15 @@ pio.templates.default = "mycolor"
 
 from run_track import RunTRACK
 
-#%% MAIN full line
+#%% MAIN transport line
+# CHOOSE WITH THETA_## from 01 to 12
+thetai_name="02"
+folder_location="transport_line/theta_"+thetai_name
+#folder_location="transport_line/testing"
 df_results = pd.DataFrame()
 quad_vals = []
 run_with_testing = 1
-rs = RunTRACK("transport_line/testing")
+rs = RunTRACK(folder_location)
 rs.run_track()
 df_beam,df_coord,df_step = rs.get_output()
 rs.plot_track(df_beam,df_coord,df_step)
