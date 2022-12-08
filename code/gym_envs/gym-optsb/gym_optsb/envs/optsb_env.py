@@ -14,14 +14,21 @@ class OptSBEnv(gym.Env):
         self.client = None
         self.bucket = None
         self.obs_type = 'sim'
-        self.optimal_reward_value = -1.
-        self.reward_type = 0
+        self.optimal_reward_value = -0.1
+        self.reward_type = 1
         self.quad_vals = [0.,0.,0.]
         self.obs = pd.DataFrame()
+        self.min_action = [0.0,-1.0,0.0]
+        self.max_action = [1.0,0.0,1.0]
+        self.max_quad_val = 2000.0
+        self.min_quad_val = -2000.0
+        # self.action_space = gym.spaces.Box(
+        #     low=self.min_action, high=self.max_action, shape=(3,), dtype=np.float32
+        # )
         self.action_space = gym.spaces.Discrete(6)
         self.action = -1 #6 up/down for each
         self.observation_space = gym.spaces.Box(low=-np.inf,high=np.inf, shape=(6,), dtype=np.float64)
-        print('State space dim is: ', self.observation_space)
+        #print('State space dim is: ', self.observation_space)
         self.reward = 0.
         self.cummulative_reward = []
         self.iteration_reward = [] #reward
@@ -36,7 +43,7 @@ class OptSBEnv(gym.Env):
     def step(self, action): #required for env
         #apply action, get updated state
         done = False
-        self.action = action
+        self.action = action #self.action[i] = min(max(action[i], self.min_action[i]), self.max_action[i]) * self.max_quad_val[i]
         self.iteration_action.append(action)
 
         self.state, state_done = self._get_observation()
@@ -72,6 +79,9 @@ class OptSBEnv(gym.Env):
         self.action = -1 #np.zeros_like(qvalues)
         self.action = np.argmax(qvalues)
         return self.action
+    
+    def get_optimal_reward_value(self):
+        return self.optimal_reward_value
 
     def _get_observation(self): #pull data from database (sim or exp)??
         #if sim, run sim -> get vals directly
@@ -90,7 +100,7 @@ class OptSBEnv(gym.Env):
         df_results = pd.DataFrame()
         sim_done = False
         run_dir = self.rs.set_dir()
-        print("old quad vals: {}".format(self.quad_vals))
+        #print("old quad vals: {}".format(self.quad_vals))
         new_quad_vals = self.rs.mod_quad_vals(self.action, self.quad_vals) #quad_vals = apply_action()
         for j in range(len(new_quad_vals)):
             new_quad_vals[j] = 1999. if new_quad_vals[j] > 2000. else new_quad_vals[j]
@@ -100,7 +110,7 @@ class OptSBEnv(gym.Env):
         new_quad_vals[2] = 0. if new_quad_vals[2] < 0. else new_quad_vals[2]   
 
             #sim_done = True
-        print("new quad vals: {}".format(new_quad_vals))
+        #print("new quad vals: {}".format(new_quad_vals))
         self.quad_vals = new_quad_vals
         #quad val check to set "done"
         self.rs.set_track(run_dir,new_quad_vals)
@@ -110,17 +120,18 @@ class OptSBEnv(gym.Env):
         #should make below more digestible for selecting obs values
         #could also choose to pull data from other "z" positions
         #now just pulling very last point at the "target" position
-        df_temp = {'run_dir' : run_dir,
-        'Q1': new_quad_vals[0], 'Q2': new_quad_vals[1], 'Q3': new_quad_vals[2],
-        'Xrms': df_beam['x_rms[cm]'].values[len(df_beam.index)-1], 
-        'Yrms': df_beam['y_rms[cm]'].values[len(df_beam.index)-1],
-        'ax': df_beam['a_x'].values[len(df_beam.index)-1], 
-        'ay': df_beam['a_y'].values[len(df_beam.index)-1],
-        'az': df_beam['a_z'].values[len(df_beam.index)-1],
-        'part_lost': df_beam['#of_part_lost'].values[len(df_beam.index)-1],
-        'part_left': df_beam['#of_part_left'].values[len(df_beam.index)-1]
-        }
-        df_results = df_results.append(df_temp, ignore_index = True)
+        df_temp = pd.DataFrame({'run_dir' : [run_dir],
+        'Q1': [new_quad_vals[0]], 'Q2': [new_quad_vals[1]], 'Q3': [new_quad_vals[2]],
+        'Xrms': [df_beam['x_rms[cm]'].values[len(df_beam.index)-1]], 
+        'Yrms': [df_beam['y_rms[cm]'].values[len(df_beam.index)-1]],
+        'ax': [df_beam['a_x'].values[len(df_beam.index)-1]], 
+        'ay': [df_beam['a_y'].values[len(df_beam.index)-1]],
+        'az': [df_beam['a_z'].values[len(df_beam.index)-1]],
+        'part_lost': [df_beam['#of_part_lost'].values[len(df_beam.index)-1]],
+        'part_left': [df_beam['#of_part_left'].values[len(df_beam.index)-1]]
+        })
+        df_results = pd.concat([df_results,df_temp])
+        #print(df_results['Q1'])
         return df_results, sim_done
        
 
@@ -148,6 +159,9 @@ class OptSBEnv(gym.Env):
         self.iteration_radius.append([xrms,yrms,radius_squared])
         transmission_fraction = self.obs.iloc[0]['part_left']/1000.
         self.iteration_transmission.append(transmission_fraction)
+        if (transmission_fraction < 0.1):
+            transmission_fraction = 0.1
+            reward_done = True
 
         if (self.reward_type == 0): #reward from XY size
             reward_value = -1.*radius_squared - factor*(1.-transmission_fraction)
@@ -169,31 +183,6 @@ class OptSBEnv(gym.Env):
         return reward_value, reward_done
     
     def render(self, mode="human"): #decide what to draw from env
-        print("Drawing env figures")
-        indexing = []
-        for i in range(len(self.iteration_reward)):
-            indexing.append(i)
-        qvals = np.array(self.iteration_quad_vals)
-        bvals = np.array(self.iteration_beam_vals)
         fig = go.Figure()
-        fig.add_trace(go.Scatter(name='reward',x=indexing,y=self.iteration_reward))
-        fig.add_trace(go.Scatter(name='action',x=indexing,y=self.iteration_action))
-        fig.add_trace(go.Scatter(name='transmission',x=indexing,y=self.iteration_transmission))
-        fig.update_xaxes(title='step number')
+        fig.add_trace(go.Scatter(name='XY',x=self.obs['Xrms'],y=self.obs['Yrms']))
         fig.show()
-
-        fig_state = go.Figure()
-        fig_state.add_trace(go.Scatter(name="Quad1",x=indexing,y=qvals[:,0]))
-        fig_state.add_trace(go.Scatter(name="Quad2",x=indexing,y=qvals[:,1]))
-        fig_state.add_trace(go.Scatter(name="Quad3",x=indexing,y=qvals[:,2]))
-        fig_state.update_xaxes(title='step number')
-        fig_state.update_yaxes(title="Quad Vals")
-        fig_state.show()
-
-        fig_beam = go.Figure()
-        fig_beam.add_trace(go.Scatter(name="1",x=indexing,y=bvals[:,0]))
-        fig_beam.add_trace(go.Scatter(name="2",x=indexing,y=bvals[:,1]))
-        fig_beam.add_trace(go.Scatter(name="3",x=indexing,y=bvals[:,2]/1000.0))
-        fig_beam.update_xaxes(title='step number')
-        fig_beam.update_yaxes(title="Beam Vals")
-        fig_beam.show()

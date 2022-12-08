@@ -13,75 +13,109 @@ import pandas as pd
 import plotly.io as pio
 import math
 from scipy import special
-color = ['#31AFDB','#7F599A','#2AA590','#DB84B9','#A1A4A7','#E48E54','#DFBA23','#AD9B8F']
+color = ['#983A38','#423155','#1D220F','#BF4D3B','#7F4772','#435F2B','#C4B690','#000000']
+color = ['#5495EF','#6EB887','#CE5F4E','#EB9F47','#E2E2E2','#506173','#ad7fa8','#000000']
 pio.templates["mycolor"] = go.layout.Template(
     layout_colorway=color)
 pio.templates.default = "mycolor"
 
 class RunTRACK():
-    def __init__(self):
+    def __init__(self,track_line="sps_line"):
         self.doShowPlot = False
-        self.run_with_testing = 1
+        self.run_with_testing = 2
         self.run_dir = ""
+        self.base_dir = ""
+        self.track_dir = ""
+        self.track_line = track_line
         #make below 'more' generic
         self.current_dir = os.getcwd()
         self.main_dir, temp = os.path.split(os.getcwd()) #assumes working from playground dir
         #print(self.main_dir)
         if (temp == "playground"):
             self.track_dir = self.main_dir + "/track/build/"
-            self.base_dir = self.main_dir + "/track/sps_line/"
+            self.base_dir = self.main_dir + "/track/" + self.track_line + "/"
         else:
             self.main_dir, _ = os.path.split(self.main_dir)
             self.track_dir = self.main_dir + "/build/"
-            self.base_dir = self.main_dir + "/sps_line/"
-        #print(self.base_dir)
+            self.base_dir = self.main_dir + "/" + self.track_line + "/"
+        print(self.base_dir)
         self.track_exe="TRACKv39C.exe"
         #print(int(datetime.utcnow().strftime("%Y%m%d%H%M%S")))
+        self.counter = 0
+        RunTRACK.set_dir(self)
+        RunTRACK.set_track(self)
 
     # mkdir new run dir w/ date or number
     def set_dir(self):
         if (self.run_with_testing == 1):
             self.run_dir = os.path.join(self.base_dir, "testing")
-        else:
+
+        if (self.run_with_testing == 2):
+            self.run_dir = os.path.join(self.base_dir, "working")
+
+        if (self.run_with_testing == 3):
             time.sleep(1.5) #needed to be sure new folder is made for loop
             date_time = int(datetime.utcnow().strftime("%Y%m%d%H%M%S"))
             self.run_dir = os.path.join(self.base_dir, f"sim_{date_time}")
         #print(self.run_dir)
         if (os.path.isdir(self.run_dir)):
-            print("directory exists")
+            print("")
         else:
             os.mkdir(self.run_dir)
         return self.run_dir
 
-    def set_track(self,run_dir,quad_vals):
+    def set_track(self):
         #print("quad_vals: {}".format(quad_vals))
         track_input_files = ['track.dat','sclinac.dat','fi_in.dat']
         for file_name in track_input_files:
             cp_file1 = os.path.join(self.base_dir,file_name)
-            cp_file2 = os.path.join(run_dir,file_name)
+            cp_file2 = os.path.join(self.run_dir,file_name)
+            print(cp_file1)
+            print(cp_file2)
+            os.system(f"cp {cp_file1} {cp_file2}")
+
+    def mod_track(self,quad_vals):
+        #print("quad_vals: {}".format(quad_vals))
+        track_input_files = ['track.dat','sclinac.dat','fi_in.dat']
+        for file_name in track_input_files:
+            cp_file1 = os.path.join(self.base_dir,file_name)
+            cp_file2 = os.path.join(self.run_dir,file_name)
             #print(cp_file1)
             os.system(f"cp {cp_file1} {cp_file2}")
         #modify track input files as needed
-        sclinac_file = os.path.join(run_dir, "sclinac.dat")
-        with open(sclinac_file, "r") as file:
-            lines = file.readlines()
-            n_quad = 0
-            for i, line in enumerate(lines):
-                if "quad" in line:
-                    split_line = line.split()
-                    split_line[2] = str(quad_vals[n_quad])
-                    lines[i] = " ".join(split_line) + "\n"
-                    n_quad += 1
-                    # print(lines[i])
-        with open(sclinac_file, "w") as file:
-            file.writelines(lines)
+        # sclinac_file = os.path.join(run_dir, "sclinac.dat")
+        # with open(sclinac_file, "r") as file:
+        #     lines = file.readlines()
+        #     n_quad = 0
+        #     for i, line in enumerate(lines):
+        #         if "quad" in line:
+        #             split_line = line.split()
+        #             split_line[2] = str(quad_vals[n_quad])
+        #             lines[i] = " ".join(split_line) + "\n"
+        #             n_quad += 1
+        #             # print(lines[i])
+        # with open(sclinac_file, "w") as file:
+        #     file.writelines(lines)
 
-    def plot_track(self,df_beam,df_coord,df_step,quad_vals):
+    def plot_track(self,df_beam,df_coord,df_step):
+        self.counter+=1
+        if (self.counter == 1):
+            completed = subprocess.call("rm -rf profile*.png", shell=True)
+
+#df.loc[df['B'].isin(['one','three'])]
         fig_step = go.Figure()
         quad_size=30.
-        for i in range(3):
-            fig_step.add_shape(type="rect",x0=df_beam['dist[m]'].values[i*2+2]*100-quad_size, 
-            y0=0, x1=df_beam['dist[m]'].values[i*2+2]*100, y1=3,
+        df_sub1 = df_beam.loc[df_beam['name'].isin(['quad'])]
+        for i in range(df_sub1.shape[0]):
+            fig_step.add_shape(type="rect",x0=df_sub1['dist[m]'].values[i]*100-quad_size, 
+            y0=0, x1=df_sub1['dist[m]'].values[i]*100, y1=3,
+            line=dict(width=0),fillcolor=color[5],opacity=0.25,layer='below'
+            )
+        quad_size=10.
+        df_sub1 = df_beam.loc[df_beam['name'].isin(['slit'])]
+        for i in range(df_sub1.shape[0]):
+            fig_step.add_shape(type="rect",x0=df_sub1['dist[m]'].values[i]*100-quad_size, 
+            y0=0, x1=df_sub1['dist[m]'].values[i]*100, y1=3,
             line=dict(width=0),fillcolor=color[6],opacity=0.25,layer='below'
             )
         fig_step.add_trace(go.Scatter(name='X-rms',x=df_step['z[cm]'], 
@@ -96,11 +130,24 @@ class RunTRACK():
         fig_step.add_trace(go.Scatter(name='Y-max',x=df_step['z[cm]'], 
         y=df_step['X-max[cm]'],mode='lines',marker_color=color[1],
         line_dash='dot'))
-        fig_step.add_annotation(showarrow=False,x=400,y=3.5,
-        text="Q1 {:.3f}, Q2 {:.3f}, Q3 {:.3f}".format(quad_vals[0],quad_vals[1],quad_vals[2]))
-        fig_step.update_xaxes(title="distance [cm]",range=[0,900])
-        fig_step.update_yaxes(title="size [cm]",range=[0,4])
-        fig_step.write_image("profile.png")
+        fig_step.add_annotation(showarrow=False,x=400,y=3.5,)
+        fig_step.update_xaxes(title="distance [cm]",range=[0,3000])
+        fig_step.update_yaxes(title="size [cm]",range=[0,3])
+        fig_step.update_layout(width=1200,height=600)
+        if (self.counter < 10):
+            fig_step.write_image(f"profile0000{self.counter}.png")
+        if(self.counter > 9 and self.counter < 100):
+            fig_step.write_image(f"profile000{self.counter}.png")
+        if(self.counter > 99 and self.counter < 1000):
+            fig_step.write_image(f"profile00{self.counter}.png")
+        if(self.counter > 999 and self.counter < 10000):
+            fig_step.write_image(f"profile0{self.counter}.png")
+        if(self.counter > 9999 and self.counter < 10000):
+            fig_step.write_image(f"profile{self.counter}.png")
+
+        #os.chdir()
+        # if (self.counter%100 == 0):
+        #     completed = subprocess.call("convert -delay 50 profiles/profile*.png out.gif", shell=True)
         if (self.doShowPlot):
             fig_step.show()
 
@@ -120,20 +167,20 @@ class RunTRACK():
         quad_vals[2] = random()*2000.
         return quad_vals
 
-    def get_output(self,run_dir):
-        fname=run_dir+'/beam.out'
+    def get_output(self):
+        fname=self.run_dir+'/beam.out'
         df_beam = pd.read_csv(fname,header=0,delim_whitespace=True)
         #print(df_beam.tail)
-        fname=run_dir+'/coord.out'
+        fname=self.run_dir+'/coord.out'
         df_coord = pd.read_csv(fname,header=0,delim_whitespace=True)
-        fname=run_dir+'/step.out'
+        fname=self.run_dir+'/step.out'
         df_step = pd.read_csv(fname,header=0,delim_whitespace=True)
         return df_beam,df_coord,df_step
 
-    def run_track(self,run_dir):
-        os.chdir(run_dir)
+    def run_track(self):
+        os.chdir(self.run_dir)
         completed = subprocess.call(
-            "wine64 " + str(os.path.join(self.track_dir, self.track_exe)), shell=True
+            "WINEDEBUG=-all wine64 " + str(os.path.join(self.track_dir, self.track_exe)) + "", shell=True
         )
         os.listdir()
 

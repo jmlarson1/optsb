@@ -21,8 +21,8 @@ import os
 
 # TRY NOT TO MODIFY: seeding
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-env = gym.make('CartPole-v1')
-#env = gym.make('optsb-v0')
+#env = gym.make('CartPole-v1')
+env = gym.make('optsb-v0')
 seed = 1234
 random.seed(seed)
 np.random.seed(seed)
