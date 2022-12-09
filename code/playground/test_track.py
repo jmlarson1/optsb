@@ -32,9 +32,10 @@ thetai_name="01"
 folder_location="transport_line/theta_"+thetai_name
 #folder_location="transport_line/testing"
 df_results = pd.DataFrame()
-quad_vals = []
 run_with_testing = 1
 rs = RunTRACK(folder_location)
+#quad_vals = [-5400.,4470.,-3000.,875.,-1150.,1077.,-1130.,-717.,535.,737.,-1500.,856.]
+#rs.mod_track(quad_vals)
 rs.run_track()
 df_beam,df_coord,df_step = rs.get_output()
 rs.plot_track(df_beam,df_coord,df_step)

@@ -41,6 +41,7 @@ class RunTRACK():
         print(self.base_dir)
         self.track_exe="TRACKv39C.exe"
         #print(int(datetime.utcnow().strftime("%Y%m%d%H%M%S")))
+        self.quad_vals = [0,0,0,0,0,0,0,0,0,0,0,0,0]
         self.counter = 0
         RunTRACK.set_dir(self)
         RunTRACK.set_track(self)
@@ -65,7 +66,7 @@ class RunTRACK():
         return self.run_dir
 
     def set_track(self):
-        #print("quad_vals: {}".format(quad_vals))
+        #print("quad_vals: {}".format())
         track_input_files = ['track.dat','sclinac.dat','fi_in.dat']
         for file_name in track_input_files:
             cp_file1 = os.path.join(self.base_dir,file_name)
@@ -75,27 +76,28 @@ class RunTRACK():
             os.system(f"cp {cp_file1} {cp_file2}")
 
     def mod_track(self,quad_vals):
+        self.quad_vals = quad_vals
         #print("quad_vals: {}".format(quad_vals))
-        track_input_files = ['track.dat','sclinac.dat','fi_in.dat']
-        for file_name in track_input_files:
-            cp_file1 = os.path.join(self.base_dir,file_name)
-            cp_file2 = os.path.join(self.run_dir,file_name)
-            #print(cp_file1)
-            os.system(f"cp {cp_file1} {cp_file2}")
+        # track_input_files = ['track.dat','sclinac.dat','fi_in.dat']
+        # for file_name in track_input_files:
+        #     cp_file1 = os.path.join(self.base_dir,file_name)
+        #     cp_file2 = os.path.join(self.run_dir,file_name)
+        #     #print(cp_file1)
+        #     os.system(f"cp {cp_file1} {cp_file2}")
         #modify track input files as needed
-        # sclinac_file = os.path.join(run_dir, "sclinac.dat")
-        # with open(sclinac_file, "r") as file:
-        #     lines = file.readlines()
-        #     n_quad = 0
-        #     for i, line in enumerate(lines):
-        #         if "quad" in line:
-        #             split_line = line.split()
-        #             split_line[2] = str(quad_vals[n_quad])
-        #             lines[i] = " ".join(split_line) + "\n"
-        #             n_quad += 1
-        #             # print(lines[i])
-        # with open(sclinac_file, "w") as file:
-        #     file.writelines(lines)
+        sclinac_file = os.path.join(self.run_dir, "sclinac.dat")
+        with open(sclinac_file, "r") as file:
+            lines = file.readlines()
+            n_quad = 0
+            for i, line in enumerate(lines):
+                if "quad" in line:
+                    split_line = line.split()
+                    split_line[2] = str(self.quad_vals[n_quad])
+                    lines[i] = " ".join(split_line) + "\n"
+                    n_quad += 1
+                    # print(lines[i])
+        with open(sclinac_file, "w") as file:
+            file.writelines(lines)
 
     def plot_track(self,df_beam,df_coord,df_step):
         self.counter+=1
@@ -111,6 +113,9 @@ class RunTRACK():
             y0=0, x1=df_sub1['dist[m]'].values[i]*100, y1=3,
             line=dict(width=0),fillcolor=color[5],opacity=0.25,layer='below'
             )
+            fig_step.add_annotation(showarrow=False,x=df_sub1['dist[m]'].values[i]*100,y=4.4-i*0.1,
+            text="{:.2f}".format(self.quad_vals[i]))
+
         quad_size=10.
         df_sub1 = df_beam.loc[df_beam['name'].isin(['slit'])]
         for i in range(df_sub1.shape[0]):
@@ -133,9 +138,8 @@ class RunTRACK():
         fig_step.add_trace(go.Scatter(name='Y-max',x=df_step['z[cm]'], 
         y=df_step['X-max[cm]'],mode='lines',marker_color=color[1],
         line_dash='dot'))
-        fig_step.add_annotation(showarrow=False,x=400,y=3.5,)
         fig_step.update_xaxes(title="distance [cm]",range=[0,3000])
-        fig_step.update_yaxes(title="size [cm]",range=[0,3])
+        fig_step.update_yaxes(title="size [cm]",range=[0,4.5])
         fig_step.update_layout(width=1200,height=600)
         if (self.counter < 10):
             fig_step.write_image(f"profile0000{self.counter}.png")
@@ -154,21 +158,21 @@ class RunTRACK():
         if (self.doShowPlot):
             fig_step.show()
 
-    def mod_quad_vals(self,action,quad_vals):
-        dt_size = 50. # units to change quad vals
-        dt_dir = [1.,-1.,1.,-1.,1.,-1.]
-        dt = dt_dir[action]
-        for i in range(3):
-            if (i*2<=action and i*2+1>=action):
-                quad_vals[i] = quad_vals[i] + dt_size * dt
-        return quad_vals
+    # def mod_quad_vals(self,action,quad_vals):
+    #     dt_size = 50. # units to change quad vals
+    #     dt_dir = [1.,-1.,1.,-1.,1.,-1.]
+    #     dt = dt_dir[action]
+    #     for i in range(3):
+    #         if (i*2<=action and i*2+1>=action):
+    #             quad_vals[i] = quad_vals[i] + dt_size * dt
+    #     return quad_vals
 
-    def get_quad_vals(self):
-        quad_vals = [1150,-1800,1000]
-        quad_vals[0] = random()*2000.
-        quad_vals[1] = random()*(-2000.)
-        quad_vals[2] = random()*2000.
-        return quad_vals
+    # def get_random_quad_vals(self):
+    #     quad_vals = [1150,-1800,1000]
+    #     quad_vals[0] = random()*2000.
+    #     quad_vals[1] = random()*(-2000.)
+    #     quad_vals[2] = random()*2000.
+    #     return quad_vals
 
     def get_output(self):
         fname=self.run_dir+'/beam.out'
