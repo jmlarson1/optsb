@@ -8,7 +8,7 @@
   nqtot=1
   qq=13.
   Amass=27.
-  npat=1000
+  npat=10000
   current=0.
 
   Qdesign=13.D0, Adesign=27.D0
@@ -29,7 +29,7 @@
   NRZ=1, igraph=1, iaccep=0, isol=0, iflag_dis=0, iflag2D=0, iflag_qq=1,
   iflag_upd=13, iflag_rms=1, iint=100, nstep_cav=50
   iflag_env=1, iflag_cav=1, iflag_ell=0, iflag_fenv=1
-  iflag_lev=0, isrf=100, iflag_mhb=0, iflag_match=1
+  iflag_lev=0, isrf=100, iflag_mhb=0, iflag_match=0
   iread_dis=0, iwrite_dis=1, iwrite_step=1, iflag_degns=1
 
 &END
