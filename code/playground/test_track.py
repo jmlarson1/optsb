@@ -27,7 +27,7 @@ from run_track import RunTRACK
 
 #%% MAIN transport line
 # CHOOSE WITH THETA_## from 01 to 12
-thetai_name="05"
+thetai_name="06"
 
 folder_location="transport_line/theta_"+thetai_name
 #folder_location="transport_line/testing"
