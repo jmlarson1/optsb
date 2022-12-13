@@ -1,6 +1,6 @@
 import gym
-from influxdb_client import InfluxDBClient, Point, WritePrecision
-from influx_client import InfluxClient
+#from influxdb_client import InfluxDBClient, Point, WritePrecision
+#from influx_client import InfluxClient
 from datetime import datetime
 from run_track import RunTRACK
 import pandas as pd
@@ -16,17 +16,17 @@ class OptSBEnv(gym.Env):
         self.obs_type = 'sim'
         self.optimal_reward_value = -0.1
         self.reward_type = 1
-        self.quad_vals = [0.,0.,0.]
+        self.quad_vals = np.array([0.,0.,0.])
         self.obs = pd.DataFrame()
-        self.min_action = [0.0,-1.0,0.0]
-        self.max_action = [1.0,0.0,1.0]
-        self.max_quad_val = 2000.0
-        self.min_quad_val = -2000.0
-        # self.action_space = gym.spaces.Box(
-        #     low=self.min_action, high=self.max_action, shape=(3,), dtype=np.float32
-        # )
-        self.action_space = gym.spaces.Discrete(6)
-        self.action = -1 #6 up/down for each
+        self.min_action = np.array([0.0,-1.0,0.0])
+        self.max_action = np.array([1.0,0.0,1.0])
+        self.max_quad_val = np.array([2000.0,0.000,2000.])
+        self.min_quad_val = np.array([0.0,-2000.0,0.0])
+        self.delta_quad_val = np.array([50.0,50.0,50.0])
+        self.action_space = gym.spaces.Box(low=-1., high=1., shape=(3,), dtype=np.float32)
+        #self.action_space = gym.spaces.Discrete(6)
+        self.action = np.zeros(3) #-1. #6 up/down for each
+        #print(self.action)
         self.observation_space = gym.spaces.Box(low=-np.inf,high=np.inf, shape=(6,), dtype=np.float64)
         #print('State space dim is: ', self.observation_space)
         self.reward = 0.
@@ -40,15 +40,15 @@ class OptSBEnv(gym.Env):
         self.state = np.ones(self.observation_space.shape[0])
         self.rs = RunTRACK()
 
-    def step(self, action): #required for env
+    def step(self, action: np.ndarray): #required for env
         #apply action, get updated state
         done = False
-        self.action = action #self.action[i] = min(max(action[i], self.min_action[i]), self.max_action[i]) * self.max_quad_val[i]
-        self.iteration_action.append(action)
-
+        for i in range(len(self.action)):
+            self.action[i] = action[i] * self.delta_quad_val[i]
+        print("Action: ",self.action)
         self.state, state_done = self._get_observation()
         self.iteration_quad_vals.append(self.state[:3].tolist())
-        # print("quad val for print: {}".format(self.iteration_quad_vals))
+        #print("quad val for print: {}".format(self.iteration_quad_vals))
         # print("slice {}".format(self.iteration_quad_vals[0][2]))
         self.iteration_beam_vals.append(self.state[3:].tolist())
         #print("beam vals: {}".format(self.iteration_beam_vals))
@@ -70,15 +70,15 @@ class OptSBEnv(gym.Env):
         self.iteration_quad_vals = [] # 1,2,3
         self.iteration_action = [] #index 0-8
         self.iteration_beam_vals = []
-        self.action = -1 # u/d actions x3 quads
-        self.quad_vals = self.rs.get_quad_vals() #set random starting vals
+        self.action = np.zeros(3) # u/d actions x3 quads
+        self.quad_vals = [1098.47,-1098.47,+1098.47] #self.rs.get_quad_vals() #set random starting vals
         self.state, _ = self._get_observation()
         return self.state
 
-    def get_action_from_qvals(self,qvalues):
-        self.action = -1 #np.zeros_like(qvalues)
-        self.action = np.argmax(qvalues)
-        return self.action
+    # def get_action_from_qvals(self,qvalues):
+    #     self.action = -1 #np.zeros_like(qvalues)
+    #     self.action = np.argmax(qvalues)
+    #     return self.action
     
     def get_optimal_reward_value(self):
         return self.optimal_reward_value
@@ -100,23 +100,18 @@ class OptSBEnv(gym.Env):
         df_results = pd.DataFrame()
         sim_done = False
         run_dir = self.rs.set_dir()
-        #print("old quad vals: {}".format(self.quad_vals))
-        new_quad_vals = self.rs.mod_quad_vals(self.action, self.quad_vals) #quad_vals = apply_action()
-        for j in range(len(new_quad_vals)):
-            new_quad_vals[j] = 1999. if new_quad_vals[j] > 2000. else new_quad_vals[j]
-            new_quad_vals[j] = -1999. if new_quad_vals[j] < -2000. else new_quad_vals[j]
-        new_quad_vals[0] = 0. if new_quad_vals[0] < 0. else new_quad_vals[0]   
-        new_quad_vals[1] = 0. if new_quad_vals[1] > 0. else new_quad_vals[1]   
-        new_quad_vals[2] = 0. if new_quad_vals[2] < 0. else new_quad_vals[2]   
-
-            #sim_done = True
-        #print("new quad vals: {}".format(new_quad_vals))
-        self.quad_vals = new_quad_vals
-        #quad val check to set "done"
-        self.rs.set_track(run_dir,new_quad_vals)
-        self.rs.run_track(run_dir)
-        df_beam,df_coord,df_step = self.rs.get_output(run_dir)
-        self.rs.plot_track(df_beam,df_coord,df_step,new_quad_vals)
+        print("Before: ",self.quad_vals)
+        for qnum in range(len(self.quad_vals)):
+            self.quad_vals[qnum] = self.quad_vals[qnum] + self.action[qnum]
+            #quad val check to set "done"
+            if self.quad_vals[qnum] > self.max_quad_val[qnum] or self.quad_vals[qnum] < self.min_quad_val[qnum]:
+                sim_done = True
+        new_quad_vals = self.quad_vals
+        print("After: ",new_quad_vals)
+        self.rs.mod_track(new_quad_vals)
+        self.rs.run_track()
+        df_beam,df_coord,df_step = self.rs.get_output()
+        self.rs.plot_track(df_beam,df_coord,df_step)
         #should make below more digestible for selecting obs values
         #could also choose to pull data from other "z" positions
         #now just pulling very last point at the "target" position
@@ -170,13 +165,13 @@ class OptSBEnv(gym.Env):
             reward_value = -(1.-transmission_fraction)
             reward_done = False
         if ( any(i == 1999. for i in self.quad_vals) ):
-            reward_value-=10.
+            reward_value-=1.
             reward_done = True
         if ( any(i == -1999. for i in self.quad_vals) ):
-            reward_value-=10.
+            reward_value-=1.
             reward_done = True
         if ( any(i == 0. for i in self.quad_vals) ):
-            reward_value-=10.
+            reward_value-=1.
             reward_done = True
         if (reward_value > self.optimal_reward_value):
             reward_done = True
