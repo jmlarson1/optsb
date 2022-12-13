@@ -10,7 +10,7 @@ import plotly.graph_objects as go
 from typing import Optional
 
 class OptSBEnv(gym.Env):
-    def __init__(self): #required for env
+    def __init__(self,num_params=3,discrete_action=False): #required for env
         self.client = None
         self.bucket = None
         self.obs_type = 'sim'
@@ -20,12 +20,12 @@ class OptSBEnv(gym.Env):
         self.obs = pd.DataFrame()
         self.min_action = np.array([0.0,-1.0,0.0])
         self.max_action = np.array([1.0,0.0,1.0])
-        self.max_quad_val = np.array([2000.0,0.000,2000.])
-        self.min_quad_val = np.array([0.0,-2000.0,0.0])
+        self.max_quad_val = np.array([2200.0,0.000,2200.])
+        self.min_quad_val = np.array([0.0,-2200.0,0.0])
         self.delta_quad_val = np.array([50.0,50.0,50.0])
-        self.action_space = gym.spaces.Box(low=-1., high=1., shape=(3,), dtype=np.float32)
+        self.action_space = gym.spaces.Box(low=-1., high=1., shape=(num_params,), dtype=np.float32)
         #self.action_space = gym.spaces.Discrete(6)
-        self.action = np.zeros(3) #-1. #6 up/down for each
+        self.action = np.zeros(num_params) #number of to modify in beam line
         #print(self.action)
         self.observation_space = gym.spaces.Box(low=-np.inf,high=np.inf, shape=(6,), dtype=np.float64)
         #print('State space dim is: ', self.observation_space)
@@ -71,7 +71,7 @@ class OptSBEnv(gym.Env):
         self.iteration_action = [] #index 0-8
         self.iteration_beam_vals = []
         self.action = np.zeros(3) # u/d actions x3 quads
-        self.quad_vals = [1098.47,-1098.47,+1098.47] #self.rs.get_quad_vals() #set random starting vals
+        self.quad_vals = [1098.47,-1098.47,+1098.47] #self.rs.get_quad_vals() #set starting vals
         self.state, _ = self._get_observation()
         return self.state
 
@@ -88,7 +88,7 @@ class OptSBEnv(gym.Env):
         #if exp, pull from db
         if (self.obs_type=='sim'):
             db_read, obs_done = self._run_simulation() #returns many values
-            self.obs = db_read[['Q1','Q2','Q3','Xrms','Yrms','part_left']]
+            self.obs = db_read[['Q1','Q2','Q3','Xrms','Yrms','part_left','frac_part_left']]
              #pick some to send as state
         else: #not functional yet for data
             db_read = self._pull_database() 
@@ -123,10 +123,11 @@ class OptSBEnv(gym.Env):
         'ay': [df_beam['a_y'].values[len(df_beam.index)-1]],
         'az': [df_beam['a_z'].values[len(df_beam.index)-1]],
         'part_lost': [df_beam['#of_part_lost'].values[len(df_beam.index)-1]],
-        'part_left': [df_beam['#of_part_left'].values[len(df_beam.index)-1]]
+        'part_left': [df_beam['#of_part_left'].values[len(df_beam.index)-1]],
+        'frac_part_left': [df_beam['#of_part_left'].values[len(df_beam.index)-1]/df_beam['#of_part_left'].values[0]]
         })
         df_results = pd.concat([df_results,df_temp])
-        #print(df_results['Q1'])
+        print(df_results)
         return df_results, sim_done
        
 
@@ -146,33 +147,33 @@ class OptSBEnv(gym.Env):
 
     def _calculate_reward(self): # if needed beyond what is inside step
         #general stuff
+        reward_done = False
         reward_value = 0.
         factor = 100.
         xrms = self.obs.iloc[0]['Xrms']
         yrms = self.obs.iloc[0]['Yrms']
         radius_squared = xrms*xrms + yrms*yrms
         self.iteration_radius.append([xrms,yrms,radius_squared])
-        transmission_fraction = self.obs.iloc[0]['part_left']/1000.
-        self.iteration_transmission.append(transmission_fraction)
-        if (transmission_fraction < 0.1):
-            transmission_fraction = 0.1
-            reward_done = True
 
-        if (self.reward_type == 0): #reward from XY size
-            reward_value = -1.*radius_squared - factor*(1.-transmission_fraction)
-            reward_done = False
+        transmission_fraction = self.obs.iloc[0]['frac_part_left']
+        self.iteration_transmission.append(transmission_fraction)
+        # if (transmission_fraction < 0.1):
+        #     transmission_fraction = 0.1
+        #     reward_done = True
+
+        # if (self.reward_type == 0): #reward from XY size
+        #     reward_value = -1.*radius_squared - factor*(1.-transmission_fraction)
+        #     reward_done = False
+
         if (self.reward_type == 1): #reward from transmission only
             reward_value = -(1.-transmission_fraction)
-            reward_done = False
         if ( any(i == 1999. for i in self.quad_vals) ):
-            reward_value-=1.
             reward_done = True
         if ( any(i == -1999. for i in self.quad_vals) ):
-            reward_value-=1.
             reward_done = True
         if ( any(i == 0. for i in self.quad_vals) ):
-            reward_value-=1.
             reward_done = True
+
         if (reward_value > self.optimal_reward_value):
             reward_done = True
         return reward_value, reward_done
