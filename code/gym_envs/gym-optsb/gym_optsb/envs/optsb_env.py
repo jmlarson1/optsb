@@ -27,7 +27,7 @@ class OptSBEnv(gym.Env):
         #self.action_space = gym.spaces.Discrete(6)
         self.action = np.zeros(num_params) #number of to modify in beam line
         #print(self.action)
-        self.observation_space = gym.spaces.Box(low=-np.inf,high=np.inf, shape=(6,), dtype=np.float64)
+        self.observation_space = gym.spaces.Box(low=-np.inf,high=np.inf, shape=(7,), dtype=np.float64)
         #print('State space dim is: ', self.observation_space)
         self.reward = 0.
         self.cummulative_reward = []
@@ -179,6 +179,5 @@ class OptSBEnv(gym.Env):
         return reward_value, reward_done
     
     def render(self, mode="human"): #decide what to draw from env
+        #values for rewards, Q's etc., the profile for the sim is taken care of on its own
         fig = go.Figure()
-        fig.add_trace(go.Scatter(name='XY',x=self.obs['Xrms'],y=self.obs['Yrms']))
-        fig.show()

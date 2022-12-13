@@ -24,9 +24,9 @@ parser.add_argument('--mode', default='train', type=str) # mode = 'train' or 'te
 # OpenAI gym environment name, # ['BipedalWalker-v2', 'Pendulum-v0'] or any continuous environment
 # Note that DDPG is feasible about hyper-parameters.
 # You should fine-tuning if you change to another environment.
-parser.add_argument("--env_name", default="Pendulum-v1")
+parser.add_argument("--env_name", default="optsb-v0")
 parser.add_argument('--tau',  default=0.005, type=float) # target smoothing coefficient
-parser.add_argument('--target_update_interval', default=1, type=int)
+parser.add_argument('--target_update_interval', default=10, type=int)
 parser.add_argument('--test_iteration', default=10, type=int)
 
 parser.add_argument('--learning_rate', default=1e-4, type=float)
@@ -38,10 +38,10 @@ parser.add_argument('--random_seed', default=9527, type=int)
 # optional parameters
 
 parser.add_argument('--sample_frequency', default=2000, type=int)
-parser.add_argument('--render', default=False, type=bool) # show UI or not
-parser.add_argument('--log_interval', default=50, type=int) #
+parser.add_argument('--render', default=True, type=bool) # show UI or not
+parser.add_argument('--log_interval', default=1000, type=int) #
 parser.add_argument('--load', default=False, type=bool) # load model
-parser.add_argument('--render_interval', default=100, type=int) # after render_interval, the env.render() will work
+parser.add_argument('--render_interval', default=10, type=int) # after render_interval, the env.render() will work
 parser.add_argument('--exploration_noise', default=0.1, type=float)
 parser.add_argument('--max_episode', default=100000, type=int) # num of games
 parser.add_argument('--print_log', default=5, type=int)
