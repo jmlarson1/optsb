@@ -3,10 +3,10 @@ import pandas as pd
 
 from run_track import RunTRACK
 
-for i in range(1, 13):
+for i in range(12):
     starting_dir = os.getcwd()
 
-    thetai_name = f"{i:02d}"  # pad with one zero
+    thetai_name = f"{i+1:02d}"  # pad with one zero
     folder_location = "transport_line/theta_" + thetai_name
 
     df_results = pd.DataFrame()
