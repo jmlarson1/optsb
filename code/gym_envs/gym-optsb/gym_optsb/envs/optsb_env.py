@@ -40,6 +40,7 @@ class OptSBEnv(gym.Env):
         self.iteration_quad_vals = [] # 1,2,3
         self.iteration_action = [] #index 0-5
         self.iteration_beam_vals = [] # beam stuff
+        self.df_quads = pd.DataFrame(columns=['name', 'Q1', 'Q2', 'Q3'])
         self.state = np.ones(self.observation_space.shape[0])
         self.rs = RunTRACK()
 
@@ -133,6 +134,8 @@ class OptSBEnv(gym.Env):
         })
         df_results = pd.concat([df_results,df_temp])
         print(df_results)
+        self.df_quads 
+
         return df_results, sim_done
        
 
