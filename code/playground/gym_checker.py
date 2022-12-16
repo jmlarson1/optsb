@@ -38,7 +38,7 @@ model = PPO("MlpPolicy", env, verbose=1)
 
 quadvals_iterate = []
 obs = env.reset()
-for i in range(5):
+for i in range(10):
   #action, _states = model.predict(obs, deterministic=True)
   action = env.action_space.sample()
   print("action: ",action)
@@ -46,7 +46,7 @@ for i in range(5):
   print("obs: {}, reward: {}, done: {}".format(obs[0], reward, done))
   #quadvals_iterate.append(obs)
   #print(quadvals_iterate[0][0])
-  # env.render()
+  env.render()
   if done:
     print("Done...")
     obs = env.reset()

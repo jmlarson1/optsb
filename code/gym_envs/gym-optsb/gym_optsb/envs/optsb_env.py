@@ -7,6 +7,7 @@ import pandas as pd
 import random
 import numpy as np
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 from typing import Optional
 
 class OptSBEnv(gym.Env):
@@ -31,6 +32,8 @@ class OptSBEnv(gym.Env):
         #print('State space dim is: ', self.observation_space)
         self.reward = 0.
         self.cummulative_reward = []
+        self.iteration = 0
+        self.iteration_index = [] #counter
         self.iteration_reward = [] #reward
         self.iteration_transmission = [] #trans fraction
         self.iteration_radius = [] # x,y,r
@@ -64,12 +67,12 @@ class OptSBEnv(gym.Env):
     def reset(self,*,seed: Optional[int] = None,return_info: bool = False,options: Optional[dict] = None,): #required for envs
         self.obs = pd.DataFrame()
         self.reward = 0.
-        self.iteration_reward = [] #reward
-        self.iteration_transmission = [] #trans fraction
-        self.iteration_radius = [] # x,y,r
-        self.iteration_quad_vals = [] # 1,2,3
-        self.iteration_action = [] #index 0-8
-        self.iteration_beam_vals = []
+        # self.iteration_reward = [] #reward
+        # self.iteration_transmission = [] #trans fraction
+        # self.iteration_radius = [] # x,y,r
+        # self.iteration_quad_vals = [] # 1,2,3
+        # self.iteration_action = [] #index 0-8
+        # self.iteration_beam_vals = []
         self.action = np.zeros(3) # u/d actions x3 quads
         self.quad_vals = [1098.47,-1098.47,+1098.47] #self.rs.get_quad_vals() #set starting vals
         self.state, _ = self._get_observation()
@@ -94,6 +97,8 @@ class OptSBEnv(gym.Env):
             db_read = self._pull_database() 
             self.obs = db_read
         np_obs = np.squeeze(np.array(self.obs.values.tolist()))
+        self.iteration+=1
+        self.iteration_index.append(self.iteration)
         return np_obs, obs_done
     
     def _run_simulation(self): #process track
@@ -180,4 +185,17 @@ class OptSBEnv(gym.Env):
     
     def render(self, mode="human"): #decide what to draw from env
         #values for rewards, Q's etc., the profile for the sim is taken care of on its own
-        fig = go.Figure()
+        # Plot every reward value calculated, identify when "False", all Q-values in bars ??
+        #Then a second plot maybe just for at the end of things
+
+        fig = make_subplots(rows=3, cols=1)
+        fig.update_layout(height=1000, width=1200, title_text="OptSB")
+        #row = 1
+        fig.add_trace(go.Scatter(x=self.iteration_index, y=self.iteration_reward),
+        row=1, col=1)
+        fig.update_yaxes(title="reward value",range=[-1.05,0.05],row=1,col=1)
+        #row = 2
+        # fig.add_trace(go.Scatter(x=self.iteration_index, y=self.iteration_radius),
+        # row=2, col=1)
+        # fig.update_yaxes(title="radius value",range=[-10,10],row=2,col=1)
+        fig.write_image(f"optsb.png")
