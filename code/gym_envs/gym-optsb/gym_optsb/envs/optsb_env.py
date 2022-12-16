@@ -1,3 +1,7 @@
+#TODO
+# change state information to only the quads, obsevation has state + reward
+#normalize all state info to -1,1 or 0,1 but by row or element???
+
 import gym
 #from influxdb_client import InfluxDBClient, Point, WritePrecision
 #from influx_client import InfluxClient
@@ -28,7 +32,7 @@ class OptSBEnv(gym.Env):
         #self.action_space = gym.spaces.Discrete(6)
         self.action = np.zeros(num_params) #number of to modify in beam line
         #print(self.action)
-        self.observation_space = gym.spaces.Box(low=-np.inf,high=np.inf, shape=(7,), dtype=np.float64)
+        self.observation_space = gym.spaces.Box(low=-np.inf,high=np.inf, shape=(3,), dtype=np.float64)
         #print('State space dim is: ', self.observation_space)
         self.reward = 0.
         self.cummulative_reward = []
@@ -38,10 +42,10 @@ class OptSBEnv(gym.Env):
         self.iteration_transmission = [] #trans fraction
         self.iteration_radius = [] # x,y,r
         self.iteration_quad_vals = [] # 1,2,3
+        self.quad_dict = {}
         self.iteration_action = [] #index 0-5
         self.iteration_beam_vals = [] # beam stuff
-        self.df_quads = pd.DataFrame(columns=['name', 'Q1', 'Q2', 'Q3'])
-        self.state = np.ones(self.observation_space.shape[0])
+        self.state = np.ones(num_params) # only for accelerator correctors
         self.rs = RunTRACK()
 
     def step(self, action: np.ndarray): #required for env
@@ -75,7 +79,7 @@ class OptSBEnv(gym.Env):
         # self.iteration_action = [] #index 0-8
         # self.iteration_beam_vals = []
         self.action = np.zeros(3) # u/d actions x3 quads
-        self.quad_vals = [1098.47,-1098.47,+1098.47] #self.rs.get_quad_vals() #set starting vals
+        self.quad_vals = [1098.47+random.randrange(-500,500),-1098.47+random.randrange(-500,500),+1098.47+random.randrange(-500,500)] #self.rs.get_quad_vals() #set starting vals
         self.state, _ = self._get_observation()
         return self.state
 
@@ -97,7 +101,7 @@ class OptSBEnv(gym.Env):
         else: #not functional yet for data
             db_read = self._pull_database() 
             self.obs = db_read
-        np_obs = np.squeeze(np.array(self.obs.values.tolist()))
+        np_obs = np.squeeze(np.array(self.obs[['Q1','Q2','Q3']].values.tolist()))
         self.iteration+=1
         self.iteration_index.append(self.iteration)
         return np_obs, obs_done
@@ -134,7 +138,6 @@ class OptSBEnv(gym.Env):
         })
         df_results = pd.concat([df_results,df_temp])
         print(df_results)
-        self.df_quads 
 
         return df_results, sim_done
        
@@ -191,20 +194,30 @@ class OptSBEnv(gym.Env):
         # Plot every reward value calculated, identify when "False", all Q-values in bars ??
         #Then a second plot maybe just for at the end of things
 
+        df_plot = pd.DataFrame.from_records(self.iteration_quad_vals)
+        df_plot['radius'] = self.iteration_radius
+        df_plot['reward'] = self.iteration_reward
+        #print(df_plot)
         fig = make_subplots(rows=3, cols=1)
         fig.update_layout(height=1000, width=1200, title_text="OptSB")
         #row = 1
-        fig.add_trace(go.Scatter(x=self.iteration_index, y=self.iteration_reward),
+        fig.add_trace(go.Scatter(x=df_plot.index, y=df_plot['reward']),
         row=1, col=1)
         fig.update_yaxes(title="reward value",range=[-1.05,0.05],row=1,col=1)
         #row = 2
-        fig.add_trace(go.Scatter(x=self.iteration_index, y=self.iteration_radius),
+        fig.add_trace(go.Scatter(x=df_plot.index, y=df_plot['radius']),
         row=2, col=1)
         fig.update_yaxes(title="radius value",range=[-20,20],row=2,col=1)
         #row = 3
-        fig.add_trace(go.Violin(x=[0],
-                            y=self.iteration_reward,
-                            name='temp',
-                            box_visible=True,
-                            meanline_visible=True),row=3,col=1)
+        row_num=3
+        for i in range(3):
+            fig.add_trace(go.Scatter(x=df_plot.index, y=df_plot[i],
+            mode='markers'),
+            row=row_num, col=1)
+            fig.update_yaxes(title="radius value",range=[-2500,2500],row=row_num,col=1)
+        # fig.add_trace(go.Violin(x=[0],
+        #                     y=self.iteration_reward,
+        #                     name='temp',
+        #                     box_visible=True,
+        #                     meanline_visible=True),row=3,col=1)
         fig.write_image(f"optsb.png")

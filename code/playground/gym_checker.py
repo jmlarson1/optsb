@@ -43,7 +43,7 @@ for i in range(5):
   action = env.action_space.sample()
   print("action: ",action)
   obs, reward, done, info = env.step(action) #env.action_space.sample())
-  print("obs: {}, reward: {}, done: {}".format(obs[0], reward, done))
+  print("obs: {}, reward: {}, done: {}".format(obs, reward, done))
   #quadvals_iterate.append(obs)
   #print(quadvals_iterate[0][0])
   env.render()

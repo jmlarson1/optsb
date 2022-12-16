@@ -31,21 +31,21 @@ parser.add_argument('--test_iteration', default=10, type=int)
 
 parser.add_argument('--learning_rate', default=1e-4, type=float)
 parser.add_argument('--gamma', default=0.99, type=int) # discounted factor
-parser.add_argument('--capacity', default=1000000, type=int) # replay buffer size
+parser.add_argument('--capacity', default=1000, type=int) # replay buffer size
 parser.add_argument('--batch_size', default=100, type=int) # mini batch size
 parser.add_argument('--seed', default=False, type=bool)
 parser.add_argument('--random_seed', default=9527, type=int)
 # optional parameters
 
-parser.add_argument('--sample_frequency', default=2000, type=int)
+parser.add_argument('--sample_frequency', default=100, type=int)
 parser.add_argument('--render', default=True, type=bool) # show UI or not
 parser.add_argument('--log_interval', default=1000, type=int) #
 parser.add_argument('--load', default=False, type=bool) # load model
-parser.add_argument('--render_interval', default=10, type=int) # after render_interval, the env.render() will work
+parser.add_argument('--render_interval', default=1, type=int) # after render_interval, the env.render() will work
 parser.add_argument('--exploration_noise', default=0.1, type=float)
 parser.add_argument('--max_episode', default=100000, type=int) # num of games
-parser.add_argument('--print_log', default=5, type=int)
-parser.add_argument('--update_iteration', default=200, type=int)
+parser.add_argument('--print_log', default=50, type=int)
+parser.add_argument('--update_iteration', default=10, type=int)
 args = parser.parse_args()
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -62,8 +62,8 @@ action_dim = env.action_space.shape[0]
 max_action = float(env.action_space.high[0])
 min_Val = torch.tensor(1e-7).float().to(device) # min value
 
-directory = './exp' + script_name + args.env_name +'./'
-
+#directory = './exp' + script_name + args.env_name +'./'
+directory = '/Users/calemhoffman/Research/anl/OptSB/optsb_git/code/playground/exp' + script_name + args.env_name +'./'
 class Replay_buffer():
     '''
     Code based on:
@@ -199,9 +199,9 @@ class DDPG(object):
     def save(self):
         torch.save(self.actor.state_dict(), directory + 'actor.pth')
         torch.save(self.critic.state_dict(), directory + 'critic.pth')
-        # print("====================================")
-        # print("Model has been saved...")
-        # print("====================================")
+        print("====================================")
+        print("Model has been saved...")
+        print("====================================")
 
     def load(self):
         self.actor.load_state_dict(torch.load(directory + 'actor.pth'))
@@ -218,7 +218,10 @@ def main():
         for i in range(args.test_iteration):
             state = env.reset()
             for t in count():
-                action = agent.select_action(state)
+                if (random.randrange(-1,1)>0):
+                    action = env.action_space.sample()
+                else:
+                    action = agent.select_action(state)
                 next_state, reward, done, info = env.step(float(action))
                 ep_r += reward
                 env.render()
