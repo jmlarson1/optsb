@@ -23,7 +23,7 @@ class OptSBEnv(gym.Env):
         self.max_action = np.array([1.0,0.0,1.0])
         self.max_quad_val = np.array([2200.0,0.000,2200.])
         self.min_quad_val = np.array([0.0,-2200.0,0.0])
-        self.delta_quad_val = np.array([50.0,50.0,50.0])
+        self.delta_quad_val = np.array([250.0,250.0,250.0])
         self.action_space = gym.spaces.Box(low=-1., high=1., shape=(num_params,), dtype=np.float32)
         #self.action_space = gym.spaces.Discrete(6)
         self.action = np.zeros(num_params) #number of to modify in beam line
@@ -155,10 +155,10 @@ class OptSBEnv(gym.Env):
         reward_done = False
         reward_value = 0.
         factor = 100.
-        xrms = self.obs.iloc[0]['Xrms']
-        yrms = self.obs.iloc[0]['Yrms']
+        xrms = self.obs.iloc[0]['Xrms']*10.
+        yrms = self.obs.iloc[0]['Yrms']*10.
         radius_squared = xrms*xrms + yrms*yrms
-        self.iteration_radius.append([xrms,yrms,radius_squared])
+        self.iteration_radius.append(radius_squared)
 
         transmission_fraction = self.obs.iloc[0]['frac_part_left']
         self.iteration_transmission.append(transmission_fraction)
@@ -195,7 +195,13 @@ class OptSBEnv(gym.Env):
         row=1, col=1)
         fig.update_yaxes(title="reward value",range=[-1.05,0.05],row=1,col=1)
         #row = 2
-        # fig.add_trace(go.Scatter(x=self.iteration_index, y=self.iteration_radius),
-        # row=2, col=1)
-        # fig.update_yaxes(title="radius value",range=[-10,10],row=2,col=1)
+        fig.add_trace(go.Scatter(x=self.iteration_index, y=self.iteration_radius),
+        row=2, col=1)
+        fig.update_yaxes(title="radius value",range=[-20,20],row=2,col=1)
+        #row = 3
+        fig.add_trace(go.Violin(x=[0],
+                            y=self.iteration_reward,
+                            name='temp',
+                            box_visible=True,
+                            meanline_visible=True),row=3,col=1)
         fig.write_image(f"optsb.png")
