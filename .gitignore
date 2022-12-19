@@ -10,3 +10,6 @@ code/gym_envs/gym-optsb/gym_optsb.egg-info/dependency_links.txt
 *.png
 *.gif
 code/track/transport_line/theta_*/working/fort*
+*.npy
+*.npz
+*.mat
