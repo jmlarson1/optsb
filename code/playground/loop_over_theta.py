@@ -40,6 +40,7 @@ def obj_fun_with_DB(quad_vals):
 
         fvec[i] = fval
 
+    # return 10000 - fvec
     return fvec
 
 if __name__ == "__main__":
