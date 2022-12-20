@@ -6,5 +6,10 @@ code/gym_envs/gym-optsb/gym_optsb.egg-info/top_level.txt
 code/gym_envs/gym-optsb/gym_optsb.egg-info/SOURCES.txt
 code/gym_envs/gym-optsb/gym_optsb.egg-info/requires.txt
 code/gym_envs/gym-optsb/gym_optsb.egg-info/dependency_links.txt
+*.out
 *.png
 *.gif
+code/track/transport_line/theta_*/working/fort*
+*.npy
+*.npz
+*.mat
