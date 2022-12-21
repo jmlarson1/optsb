@@ -9,7 +9,7 @@
   nqtot=1
   qq=17.
   Amass=33.
-  npat=10000
+  npat=100000
   current=0.
 
   Qdesign=17, Adesign=33.
@@ -50,5 +50,5 @@
   nqtot=3
   qq=17.,16.,16.
   Amass=33.,32.,32.
-  npat=10000,10000,10000
+  npat=100000,100000,100000
   current=0.,0.,0.
