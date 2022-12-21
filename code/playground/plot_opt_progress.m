@@ -5,7 +5,7 @@ Results = R.Results;
 num = R.SolverNumber;
 
 solver_names = {};
-hold off
+hold off;
 for i = 1:num
     l = length(Results{i}.H);
     scatter(1:l, Results{i}.H, 'filled');
@@ -13,4 +13,4 @@ for i = 1:num
     solver_names{i} = Results{i}.alg;
 end
 
-legend(solver_names)
+legend(solver_names);
