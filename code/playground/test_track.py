@@ -25,19 +25,26 @@ pio.templates.default = "mycolor"
 
 from run_track import RunTRACK
 
-#%% MAIN transport line
-# CHOOSE WITH THETA_## from 01 to 12
-thetai_name="12"
-
-folder_location="transport_line/theta_"+thetai_name
-#folder_location="transport_line/testing"
-df_results = pd.DataFrame()
+#%% MAIN
+#thetai_name="12"
+thetai_names=["01","02"]
+quad_vals0 = [-5400.,4470.,-3000.,875.,-1150.,1077.,-1130.,-717.,535.,737.,-1500.,856.]
+quad_vals = quad_vals0
+brho_new = 1.0
 run_with_testing = 1
-rs = RunTRACK(folder_location)
-#quad_vals = [-5400.,4470.,-3000.,875.,-1150.,1077.,-1130.,-717.,535.,737.,-1500.,856.]
-#rs.mod_track(quad_vals)
-rs.run_track()
-df_beam,df_coord,df_step = rs.get_output()
-rs.plot_track(df_beam,df_coord,df_step)
-print(df_beam.tail)
+
+for i in range(len(thetai_names)):
+    folder_location="transport_line/theta_"+thetai_names[i]
+    #folder_location="sps_line/testing"
+    df_results = pd.DataFrame()
+    rs = RunTRACK(folder_location)
+    #quad_vals=[-5940.00,4282.77,-2460.00,517.26,-1150.00,1617.00,-590.00,-1257.00,0.00,185.02,-2039.90,327.88]
+    for j in range(len(quad_vals0)):
+        quad_vals[i] = quad_vals0[i]*brho_new
+    rs.mod_track(quad_vals)
+    rs.run_track()
+    df_beam,df_coord,df_step = rs.get_output()
+    rs.plot_track(df_beam,df_coord,df_step)
+    print(df_beam.tail)
+    print("done with one loop")
 print("exiting...now")
