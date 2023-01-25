@@ -27,20 +27,25 @@ from run_track import RunTRACK
 
 #%% MAIN
 #thetai_name="12"
-thetai_names=["01","02"]
+thetai_names=["01","04","07"]
+brho_id = [0,3,6]
+brho_new = [0.996948,0.767466,0.802228,1.435824,0.757459,0.655691,
+            1.15592,0.768313,0.633925,0.984128,1.028494,1.067932]
+brho_old = 0.996948
 quad_vals0 = [-5400.,4470.,-3000.,875.,-1150.,1077.,-1130.,-717.,535.,737.,-1500.,856.]
 quad_vals = quad_vals0
-brho_new = 1.0
 run_with_testing = 1
 
 for i in range(len(thetai_names)):
+    quad_vals0 = [-5400.,4470.,-3000.,875.,-1150.,1077.,-1130.,-717.,535.,737.,-1500.,856.]
     folder_location="transport_line/theta_"+thetai_names[i]
     #folder_location="sps_line/testing"
     df_results = pd.DataFrame()
     rs = RunTRACK(folder_location)
     #quad_vals=[-5940.00,4282.77,-2460.00,517.26,-1150.00,1617.00,-590.00,-1257.00,0.00,185.02,-2039.90,327.88]
     for j in range(len(quad_vals0)):
-        quad_vals[i] = quad_vals0[i]*brho_new
+        quad_vals[j] = quad_vals0[j]*brho_new[brho_id[i]]/brho_old
+    print(quad_vals)
     rs.mod_track(quad_vals)
     rs.run_track()
     df_beam,df_coord,df_step = rs.get_output()

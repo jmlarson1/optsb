@@ -190,6 +190,7 @@ class RunTRACK():
             "WINEDEBUG=-all wine64 " + str(os.path.join(self.track_dir, self.track_exe)) + "", shell=True
         )
         os.listdir()
+        os.chdir(self.current_dir)
 
 
 # %%
