@@ -1,0 +1,75 @@
+
+ "mat_typ" specifies the matching type. For every matching type there are several matching 
+options that could be selected using "mat_opt" as follow:
+
+ mat_typ = 1: Input/Output beam matching, search for a periodic solution
+
+   mat_opt = 1: Match/Fit transverse Twiss parameters only
+             2: Match/Fit transverse Twiss parameters and emittances
+             3: Match/Fit Longitudinal Twiss parameters only
+             4: Match/Fit Longitudinal Twiss parameters and emittance
+             5: Match/Fit Transverse and logitudinal Twiss parameters only
+             6: Match/Fit Transverse and logitudinal Twiss parameters and emittances
+ 
+ mat_typ = 2: Transverse beam matching using focusing lattice
+              Fit parameters are strengths of focusing elements
+
+   mat_opt = 1: Match/Fit transverse Twiss parameters only
+             2: Match/Fit transverse Twiss parameters and emittances
+             3: Match/Fit transverse RMS beam sizes only
+             4: Match/Fit transverse RMS beam sizes and emittance
+             5: Match/Fit transverse Max beam sizes only
+             6: Match/Fit transverse Max beam sizes and emittances
+
+ mat_typ = 3: Longitudinal beam matching using accelerating lattice
+              Fit parameters are phases and amplitudes of accelerating elements
+              Note: Buncher phases are usually fixed to avoid undesirable effects 
+
+   mat_opt = 1: Match/Fit Longitudinal Twiss parameters, Varying phases only
+   mat_opt = 2: Match/Fit Longitudinal Twiss parameters, Varying amplitudes only
+   mat_opt = 3: Match/Fit Longitudinal Twiss parameters, Varying phases and amplitudes
+   mat_opt = 4: Match/Fit Longitudinal Twiss & Emittances, Varying phases only
+   mat_opt = 5: Match/Fit Longitudinal Twiss & Emittances, Varying amplitudes only
+   mat_opt = 6: Match/Fit Longitudinal Twiss & Emittances, Varying phases and amplitudes
+
+ mat_typ = 4: Transverse and longitudinal beam matching using lattice
+              Fit parameters are strengths of focusing elements and phases and 
+             amplitudes of accelerating elements
+              Note: Buncher phases are usually fixed to avoid undesirable effects 
+
+   mat_opt = 1: Match/Fit T & L Twiss parameters only, Varying phases only
+   mat_opt = 2: Match/Fit T & L Twiss parameters only, Varying amplitudes only
+   mat_opt = 3: Match/Fit T & L Twiss parameters only, Varying phases and amplitudes
+   mat_opt = 4: Match/Fit T & L Twiss & Emittances, Varying phases only
+   mat_opt = 5: Match/Fit T & L Twiss & Emittances, Varying amplitudes only
+   mat_opt = 6: Match/Fit T & L Twiss & Emittances, Varying phases and amplitudes
+
+ mat_typ = 5: Transverse beam tuning using focusing lattice
+              Fit parameters are strengths of focusing elements
+
+   mat_opt = 1: Tune/Fit Transverse RMS beam sizes as they are
+   mat_opt = 2: Tune/Fit Transverse RMS beam sizes scaled by beta*gamma factor
+
+ mat_typ = 6: Longitudinal beam tuning using accelerating lattice
+              Fit parameters are phases and amplitudes of accelerating elements
+              Note: Buncher phases are usually fixed to avoid undesirable effects 
+
+   mat_opt = 1: Tune/Fit Longitudinal RMS phase width, Varying phases only
+   mat_opt = 2: Tune/Fit Longitudinal beam tuning: Vary amplitudes only
+   mat_opt = 3: Tune/Fit Longitudinal beam tuning: Vary phases and amplitudes, fixed buncher phases
+   mat_opt = 4: Tune/Fit Longitudinal beam tuning: Vary phases only, fixed buncher phases
+   mat_opt = 5: Tune/Fit Longitudinal beam tuning: Vary amplitudes only
+   mat_opt = 6: Tune/Fit Longitudinal beam tuning: Vary phases and amplitudes, fixed buncher phases
+
+ mat_typ = 7: Transverse beam matching using both transverse input beam and focusing lattice
+
+   mat_opt = 1,4: Vary Twiss parameters, fix focusing elements strengths
+   mat_opt = 2,5: Vary focusing elements strengths, fix Twiss parameters
+   mat_opt = 3,6: Vary both Twiss parameters and focusing elements strengths
+
+-----------------------
+
+ min_bnd = 0: No parameters boundaries
+         = 1: Parameters boundaries using a scaling factor of start values
+         = 2: Parameters boundaries using explicit Min and Max values
+

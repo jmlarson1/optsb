@@ -141,6 +141,7 @@ class RunTRACK():
         fig_step.update_xaxes(title="distance [cm]",range=[0,3000])
         fig_step.update_yaxes(title="size [cm]",range=[0,3.25])
         fig_step.update_layout(width=1200,height=600)
+        os.chdir(self.run_dir)
         if (self.counter < 10):
             fig_step.write_image(f"profile0000{self.counter}.png")
         if(self.counter > 9 and self.counter < 100):
@@ -151,6 +152,7 @@ class RunTRACK():
             fig_step.write_image(f"profile0{self.counter}.png")
         if(self.counter > 9999 and self.counter < 10000):
             fig_step.write_image(f"profile{self.counter}.png")
+        os.chdir(self.current_dir)
 
         #os.chdir()
         # if (self.counter%100 == 0):
