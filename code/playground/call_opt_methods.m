@@ -1,10 +1,15 @@
-addpath('../../../poptus/IBCDFO/pounders/m'); % formquad, bmpts, boxline, phi2eval
-addpath('../../../poptus/IBCDFO/manifold_sampling/m/'); % For manifold_sampling_primal
-addpath('../../../poptus/IBCDFO/manifold_sampling/m/h_examples'); % For pw_maximum
+% addpath('../../../poptus/IBCDFO/pounders/m'); % formquad, bmpts, boxline, phi2eval
+% addpath('../../../poptus/IBCDFO/manifold_sampling/m/'); % For manifold_sampling_primal
+% addpath('../../../poptus/IBCDFO/manifold_sampling/m/h_examples'); % For pw_maximum
+
+addpath('/home/mmenickelly/IBCDFO/pounders/m'); % formquad, bmpts, boxline, phi2eval
+addpath('/home/mmenickelly/IBCDFO/manifold_sampling/m/'); % For manifold_sampling_primal
+addpath('/home/mmenickelly/IBCDFO/manifold_sampling/m/h_examples'); % For pw_maximum
+
 
 global allX allF
 
-nfmax = 20;
+nfmax = 600;
 
 subprob_switch = 'linprog';
 SolverNumber = 0;
@@ -34,7 +39,7 @@ Results{SolverNumber}.X = X;
 allX = [];
 allF = [];
 composed = @(x) max(call_track_sim_from_matlab(x));
-options = optimset('MaxFunEvals', nfmax);
+options = optimset('MaxFunEvals', nfmax/10);
 [x, fval, exitflag, output] = fminsearchbnd(composed, x0, LB, UB, options);
 
 for i = 1:size(allF, 1)

@@ -1,4 +1,4 @@
-R = load("Results_track_nfmax=20.mat");
+R = load("Results_track_nfmax=600.mat");
 
 R = R(1);
 Results = R.Results;
@@ -14,3 +14,5 @@ for i = 1:num
 end
 
 legend(solver_names);
+
+saveas(gcf,'twosolver.eps','epsc');
