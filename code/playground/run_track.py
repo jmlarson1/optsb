@@ -67,6 +67,8 @@ class RunTRACK():
 
     def set_track(self):
         #print("quad_vals: {}".format())
+        #clear previous .out files
+        os.system(f"rm -rf {self.run_dir}/*.out")
         track_input_files = ['track.dat','sclinac.dat','fi_in.dat']
         for file_name in track_input_files:
             cp_file1 = os.path.join(self.base_dir,file_name)
@@ -123,7 +125,7 @@ class RunTRACK():
             y0=0, x1=df_sub1['dist[m]'].values[i]*100, y1=3,
             line=dict(width=0),fillcolor=color[6],opacity=0.25,layer='below'
             )
-        fig_step.add_trace(go.Scatter(name='Transmission',x=df_beam['dist[m]']*100,
+        fig_step.add_trace(go.Scatter(name='Transmission Fraction',x=df_beam['dist[m]']*100,
         y=df_beam['#of_part_left']/(df_beam['#of_part_left'].values[0]),
         mode='lines',marker_color=color[2],fill='tozeroy'))  
         fig_step.add_trace(go.Scatter(name='X-rms',x=df_step['z[cm]'], 
