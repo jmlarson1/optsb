@@ -183,7 +183,10 @@ class RunTRACK():
         df_beam = pd.read_csv(fname,header=0,delim_whitespace=True)
         #print(df_beam.tail)
         fname=self.run_dir+'/coord.out'
-        df_coord = pd.read_csv(fname,header=0,delim_whitespace=True)
+        if os.path.getsize(fname):
+            df_coord = pd.read_csv(fname,header=0,delim_whitespace=True)
+        else:
+            df_coord = []
         fname=self.run_dir+'/step.out'
         df_step = pd.read_csv(fname,header=0,delim_whitespace=True)
         return df_beam,df_coord,df_step
