@@ -6,7 +6,7 @@ import numpy as np
 from run_track import RunTRACK
 
 def obj_fun_with_DB(quad_vals, i):
-    database = "theta_i_part_left_database.npy"
+    database = "theta_i_part_left_database_" + str(npat) +".npy"
     DB = []
     match = 0
     if os.path.exists(database):
@@ -41,10 +41,11 @@ def obj_fun_with_DB(quad_vals, i):
 
 if __name__ == "__main__":
     nargin = len(sys.argv)
-    quad_vals = sys.argv[1:nargin-1]
+    quad_vals = sys.argv[1:nargin-2]
     quad_vals = [float(i) for i in quad_vals]
-    i = int(sys.argv[nargin-1])
-    fvec = obj_fun_with_DB(quad_vals,i)
+    i = int(sys.argv[nargin-2])
+    npat = int(sys.argv[nargin-1])
+    fvec = obj_fun_with_DB(quad_vals,i,npat)
     np.savetxt('fvec.out', np.reshape(fvec, -1))
 
     

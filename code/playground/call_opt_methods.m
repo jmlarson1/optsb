@@ -9,7 +9,8 @@ addpath('/home/mmenickelly/IBCDFO/manifold_sampling/m/h_examples'); % For pw_max
 
 global allX allF
 
-nfmax = 600;
+npat = 5000
+nfmax = 260;
 
 subprob_switch = 'linprog';
 SolverNumber = 0;
@@ -20,10 +21,11 @@ m = 12;
 LB = [0 -4500 0 0 -4000 -4000 0 -4000 0 -4000 0 -4000];
 UB = [4500 0 4500 4000 0 0 4000 0 4000 0 4000 0];
 
+system(['bash adjust_npat.sh ' num2str(npat)])
 %x0 = LB + (UB - LB)/2.0;
 x0 =  [1047.11530,-1869.9161,1111.93598,766.9317,-700.68,-378.23,404.216,-192.6798,233.0581,-218.43955,465.59886,-203.72080];
 hfun = @pw_maximum;
-Ffun = @(x)call_several_track_sim_from_matlab(x,[1,4,7]);
+Ffun = @(x)call_several_track_sim_from_matlab(x,[1,4,7],npat);
 allX = [];
 allF = [];
 [X, F, h, xkin, flag] = manifold_sampling_primal(hfun, Ffun, x0, LB, UB, nfmax, subprob_switch);
@@ -36,22 +38,22 @@ Results{SolverNumber}.H = h;
 Results{SolverNumber}.X = X;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-allX = [];
-allF = [];
-composed = @(x) max(call_track_sim_from_matlab(x));
-options = optimset('MaxFunEvals', nfmax/10);
-[x, fval, exitflag, output] = fminsearchbnd(composed, x0, LB, UB, options);
+% allX = [];
+% allF = [];
+% composed = @(x) max(call_track_sim_from_matlab(x));
+% options = optimset('MaxFunEvals', nfmax/10);
+% [x, fval, exitflag, output] = fminsearchbnd(composed, x0, LB, UB, options);
 
-for i = 1:size(allF, 1)
-    h(i) = max(allF(i, :));
-end
-SolverNumber = SolverNumber + 1;
-Results{SolverNumber}.alg = 'Nelder-Mead';
-Results{SolverNumber}.problem = 'calem_prob';
-Results{SolverNumber}.Fvec = allF;
-Results{SolverNumber}.H = h;
-Results{SolverNumber}.X = allX;
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% for i = 1:size(allF, 1)
+%     h(i) = max(allF(i, :));
+% end
+% SolverNumber = SolverNumber + 1;
+% Results{SolverNumber}.alg = 'Nelder-Mead';
+% Results{SolverNumber}.problem = 'calem_prob';
+% Results{SolverNumber}.Fvec = allF;
+% Results{SolverNumber}.H = h;
+% Results{SolverNumber}.X = allX;
+% % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 save(['Results_track_nfmax=' int2str(nfmax) '.mat'], 'Results', 'SolverNumber');
 
