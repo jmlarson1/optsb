@@ -1,15 +1,15 @@
-% addpath('../../../poptus/IBCDFO/pounders/m'); % formquad, bmpts, boxline, phi2eval
-% addpath('../../../poptus/IBCDFO/manifold_sampling/m/'); % For manifold_sampling_primal
-% addpath('../../../poptus/IBCDFO/manifold_sampling/m/h_examples'); % For pw_maximum
+addpath('/home/jmlarson/research/poptus/IBCDFO/pounders/m'); % formquad, bmpts, boxline, phi2eval
+addpath('/home/jmlarson/research/poptus/IBCDFO/manifold_sampling/m/'); % For manifold_sampling_primal
+addpath('/home/jmlarson/research/poptus/IBCDFO/manifold_sampling/m/h_examples'); % For pw_maximum
 
-addpath('/home/mmenickelly/IBCDFO/pounders/m'); % formquad, bmpts, boxline, phi2eval
-addpath('/home/mmenickelly/IBCDFO/manifold_sampling/m/'); % For manifold_sampling_primal
-addpath('/home/mmenickelly/IBCDFO/manifold_sampling/m/h_examples'); % For pw_maximum
+% addpath('/home/mmenickelly/IBCDFO/pounders/m'); % formquad, bmpts, boxline, phi2eval
+% addpath('/home/mmenickelly/IBCDFO/manifold_sampling/m/'); % For manifold_sampling_primal
+% addpath('/home/mmenickelly/IBCDFO/manifold_sampling/m/h_examples'); % For pw_maximum
 
 
 global allX allF
 
-npat = 5000
+npat = 5000;
 nfmax = 260;
 
 subprob_switch = 'linprog';
@@ -21,7 +21,7 @@ m = 12;
 LB = [0 -4500 0 0 -4000 -4000 0 -4000 0 -4000 0 -4000];
 UB = [4500 0 4500 4000 0 0 4000 0 4000 0 4000 0];
 
-system(['bash adjust_npat.sh ' num2str(npat)])
+system(['bash adjust_npat.sh ' num2str(npat)]);
 %x0 = LB + (UB - LB)/2.0;
 x0 =  [1047.11530,-1869.9161,1111.93598,766.9317,-700.68,-378.23,404.216,-192.6798,233.0581,-218.43955,465.59886,-203.72080];
 hfun = @pw_maximum;
