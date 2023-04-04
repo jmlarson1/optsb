@@ -21,22 +21,27 @@ m = 12;
 LB = [0 -4500 0 0 -4000 -4000 0 -4000 0 -4000 0 -4000];
 UB = [4500 0 4500 4000 0 0 4000 0 4000 0 4000 0];
 
-system(['bash adjust_npat.sh ' num2str(npat)]);
-%x0 = LB + (UB - LB)/2.0;
 x0 =  [1047.11530,-1869.9161,1111.93598,766.9317,-700.68,-378.23,404.216,-192.6798,233.0581,-218.43955,465.59886,-203.72080];
-hfun = @pw_maximum;
-Ffun = @(x)call_several_track_sim_from_matlab(x,[1,4,7],npat);
-allX = [];
-allF = [];
-[X, F, h, xkin, flag] = manifold_sampling_primal(hfun, Ffun, x0, LB, UB, nfmax, subprob_switch);
-assert(flag >= 0, "Problem with manifold sampling");
-SolverNumber = SolverNumber + 1;
-Results{SolverNumber}.alg = 'Manifold sampling';
-Results{SolverNumber}.problem = 'calem_prob';
-Results{SolverNumber}.Fvec = F;
-Results{SolverNumber}.H = h;
-Results{SolverNumber}.X = X;
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% x0 = [952.496159375000e+000   -1.94223604077761e+003    1.00694574562500e+003    907.724217587984e+000   -774.585299624646e+000   -431.684081111314e+000    483.238434348558e+000   -309.859770262683e+000    116.529810344415e+000   -218.918065625000e+000    592.752634852370e+000   -158.250727314826e+000]
+
+for npat = [5000 10000 15000 20000 25000 30000]
+    system(['bash adjust_npat.sh ' num2str(npat)]);
+    %x0 = LB + (UB - LB)/2.0;
+    hfun = @pw_maximum;
+    Ffun = @(x)call_several_track_sim_from_matlab(x,[1,4,7],npat);
+    allX = [];
+    allF = [];
+    [X, F, h, xkin, flag] = manifold_sampling_primal(hfun, Ffun, x0, LB, UB, nfmax, subprob_switch);
+    assert(flag >= 0, "Problem with manifold sampling");
+    SolverNumber = SolverNumber + 1;
+    Results{SolverNumber}.alg = 'Manifold sampling';
+    Results{SolverNumber}.problem = 'calem_prob';
+    Results{SolverNumber}.Fvec = F;
+    Results{SolverNumber}.H = h;
+    Results{SolverNumber}.X = X;
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    x0 = X(xkin,:);
+end
 
 % allX = [];
 % allF = [];
