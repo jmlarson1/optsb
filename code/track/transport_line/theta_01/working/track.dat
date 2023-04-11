@@ -41,7 +41,7 @@
   min_max=1000
   min_los=1, min_xys=1
   min_bnd=1, bnd_fac=3., bnd_low=0., bnd_upp=0.
-  beamw=0., beamf= 0.,0.,0.,0.,0.,0.,0.,0.,0.
+  beamw=0., beamf= 0.5,0.,0.,0.5,0.,0.,0.,0.,0.
   fit_err=.01
 
 &END

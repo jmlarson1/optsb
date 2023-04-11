@@ -28,7 +28,7 @@ from run_track import RunTRACK
 #%% MAIN
 #thetai_name="12"
 thetai_names=["01","02","03","04","05","06","07","08","09","10","11","12"]
-brho_id = [0,1,2,3,4,5,6,7,8,9,10,11]
+brho_id = [0]#,1,2,3,4,5,6,7,8,9,10,11]
 # thetai_names=["03","06","09"]
 # brho_id = [2,5,8]
 brho_new = [0.996948,0.767466,0.802228,1.435824,0.757459,0.655691,
@@ -50,10 +50,11 @@ for i in range(len(thetai_names)):
     for j in range(len(quad_vals0)):
         quad_vals[j] = quad_vals0[j]*brho_new[brho_id[i]]/brho_old
     print(quad_vals)
-    rs.mod_track(quad_vals)
+    #rs.mod_track(quad_vals)
     rs.run_track()
     df_beam,df_coord,df_step = rs.get_output()
     rs.plot_track(df_beam,df_coord,df_step)
     print(df_beam.tail)
     print("done with one loop")
 print("exiting...now")
+# %%
