@@ -28,20 +28,23 @@ from run_track import RunTRACK
 #%% MAIN
 #thetai_name="12"
 thetai_names=["01","02","03","04","05","06","07","08","09","10","11","12"]
-brho_id = [0]#,1,2,3,4,5,6,7,8,9,10,11]
+brho_id = [0,1,2,3,4,5,6,7,8,9,10,11]
 # thetai_names=["03","06","09"]
 # brho_id = [2,5,8]
 brho_new = [0.996948,0.767466,0.802228,1.435824,0.757459,0.655691,
             1.15592,0.768313,0.633925,0.984128,1.028494,1.067932]
-brho_old = brho_new[0]#0.996948
+brho_old = brho_new[2]#0.996948
 
 run_with_testing = 1
 
 for i in range(len(thetai_names)):
     #pb
-    quad_vals0 = [1047.11530,-1869.9161,1111.93598,766.9317,-700.68,-378.23,404.216,-192.6798,233.0581,-218.43955,465.59886,-203.72080]
+    #quad_vals0 = [1047.11530,-1869.9161,1111.93598,766.9317,-700.68,-378.23,404.216,
+    #              -192.6798,233.0581,-218.43955,465.59886,-203.72080]
+    quad_vals0 = [-1752.41104,2218.67079,-1183.03835]
     #sb
-    #quad_vals0 = [821.36,-2544.29,1600.84,649.23,-626.93,-289.37,329.70,-138.49,182.95,-134.68,383.03,-153.00]
+    #quad_vals0 = [821.36,-2544.29,1600.84,649.23,-626.93,-289.37,329.70,
+    # -138.49,182.95,-134.68,383.03,-153.00]
     quad_vals = quad_vals0
     folder_location="transport_line/theta_"+thetai_names[i]
     #folder_location="sps_line/testing"
@@ -49,12 +52,17 @@ for i in range(len(thetai_names)):
     rs = RunTRACK(folder_location)
     for j in range(len(quad_vals0)):
         quad_vals[j] = quad_vals0[j]*brho_new[brho_id[i]]/brho_old
+    print("updated quad vals")
     print(quad_vals)
-    #rs.mod_track(quad_vals)
+    rs.mod_track(quad_vals)
     rs.run_track()
     df_beam,df_coord,df_step = rs.get_output()
     rs.plot_track(df_beam,df_coord,df_step)
-    print(df_beam.tail)
+    print("Beam params: #left")
+    print(df_beam['#of_part_left'].iloc[-1])
     print("done with one loop")
+    print(df_beam['#of_part_left'])
 print("exiting...now")
+# %%
+df_beam['#of_part_left']
 # %%
