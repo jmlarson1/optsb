@@ -1,34 +1,36 @@
-addpath('/home/jmlarson/research/poptus/IBCDFO/pounders/m'); % formquad, bmpts, boxline, phi2eval
-addpath('/home/jmlarson/research/poptus/IBCDFO/manifold_sampling/m/'); % For manifold_sampling_primal
-addpath('/home/jmlarson/research/poptus/IBCDFO/manifold_sampling/m/h_examples'); % For pw_maximum
+%addpath('/home/jmlarson/research/poptus/IBCDFO/pounders/m'); % formquad, bmpts, boxline, phi2eval
+%addpath('/home/jmlarson/research/poptus/IBCDFO/manifold_sampling/m/'); % For manifold_sampling_primal
+%addpath('/home/jmlarson/research/poptus/IBCDFO/manifold_sampling/m/h_examples'); % For pw_maximum
 
-% addpath('/home/mmenickelly/IBCDFO/pounders/m'); % formquad, bmpts, boxline, phi2eval
-% addpath('/home/mmenickelly/IBCDFO/manifold_sampling/m/'); % For manifold_sampling_primal
-% addpath('/home/mmenickelly/IBCDFO/manifold_sampling/m/h_examples'); % For pw_maximum
+addpath('/home/mmenickelly/IBCDFO/pounders/m'); % formquad, bmpts, boxline, phi2eval
+addpath('/home/mmenickelly/IBCDFO/manifold_sampling/m/'); % For manifold_sampling_primal
+addpath('/home/mmenickelly/IBCDFO/manifold_sampling/m/h_examples'); % For pw_maximum
 
 
 global allX allF
 
 npat = 5000;
-nfmax = 260;
+nfmax = 120;
 
 subprob_switch = 'linprog';
 SolverNumber = 0;
 
-n = 12;
+n = 3;
 m = 12;
 
-LB = [0 -4500 0 0 -4000 -4000 0 -4000 0 -4000 0 -4000];
-UB = [4500 0 4500 4000 0 0 4000 0 4000 0 4000 0];
+LB = [-4000 0 -4000];
+UB = [0 4000 0];
 
-x0 =  [1047.11530,-1869.9161,1111.93598,766.9317,-700.68,-378.23,404.216,-192.6798,233.0581,-218.43955,465.59886,-203.72080];
+x0 =  [-1432.311197351177, 1813.4027595220934, -966.9415661755137];
 % x0 = [952.496159375000e+000   -1.94223604077761e+003    1.00694574562500e+003    907.724217587984e+000   -774.585299624646e+000   -431.684081111314e+000    483.238434348558e+000   -309.859770262683e+000    116.529810344415e+000   -218.918065625000e+000    592.752634852370e+000   -158.250727314826e+000]
 
-for npat = [5000 10000 15000 20000 25000 30000]
+for npat = 5000 %[5000 10000 15000 20000 25000 30000]
     system(['bash adjust_npat.sh ' num2str(npat)]);
     %x0 = LB + (UB - LB)/2.0;
     hfun = @pw_maximum;
-    Ffun = @(x)call_several_track_sim_from_matlab(x,[1,4,7],npat);
+    % Ffun = @(x)call_several_track_sim_from_matlab(x,[1,4,7],npat);
+    ub = [1.0, 1.0, 0.24, 1.0, 0.99, 0.21, 1.0, 1.0, 0.38, 1.0, 0.31, 0.46]
+    Ffun = @(x)known_upper_bounds_on_trans(x, 1:m, ub, npat)
     allX = [];
     allF = [];
     [X, F, h, xkin, flag] = manifold_sampling_primal(hfun, Ffun, x0, LB, UB, nfmax, subprob_switch);
