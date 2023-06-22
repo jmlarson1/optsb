@@ -42,6 +42,8 @@ for i in range(len(thetai_names)):
     #quad_vals0 = [1047.11530,-1869.9161,1111.93598,766.9317,-700.68,-378.23,404.216,
     #              -192.6798,233.0581,-218.43955,465.59886,-203.72080]
     quad_vals0 = [-1752.41104,2218.67079,-1183.03835]
+    quad_vals0 = [-1833.5, 2717.0, -1726.1]
+    quad_vals0 = [-2614.2,2649.6,-908.4]
     #sb
     #quad_vals0 = [821.36,-2544.29,1600.84,649.23,-626.93,-289.37,329.70,
     # -138.49,182.95,-134.68,383.03,-153.00]
@@ -51,7 +53,7 @@ for i in range(len(thetai_names)):
     df_results = pd.DataFrame()
     rs = RunTRACK(folder_location)
     for j in range(len(quad_vals0)):
-        quad_vals[j] = quad_vals0[j]*brho_new[brho_id[i]]/brho_old
+        quad_vals[j] = quad_vals0[j]*brho_new[brho_id[i]]/1.0#brho_old
     print("updated quad vals")
     print(quad_vals)
     rs.mod_track(quad_vals)
@@ -63,6 +65,4 @@ for i in range(len(thetai_names)):
     print("done with one loop")
     print(df_beam['#of_part_left'])
 print("exiting...now")
-# %%
-df_beam['#of_part_left']
 # %%

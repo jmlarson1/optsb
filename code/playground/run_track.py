@@ -27,6 +27,7 @@ class RunTRACK():
         self.base_dir = ""
         self.track_dir = ""
         self.track_line = track_line
+        tmp,self.theta_dir = os.path.split(self.track_line)
         #make below 'more' generic
         self.current_dir = os.getcwd()
         self.main_dir, temp = os.path.split(os.getcwd()) #assumes working from playground dir
@@ -115,8 +116,8 @@ class RunTRACK():
             y0=0, x1=df_sub1['dist[m]'].values[i]*100, y1=3,
             line=dict(width=0),fillcolor=color[5],opacity=0.25,layer='below'
             )
-            #fig_step.add_annotation(showarrow=False,x=df_sub1['dist[m]'].values[i]*100,y=4.4-i*0.1,
-            #text="{:.2f}".format(self.quad_vals[i]))
+            fig_step.add_annotation(showarrow=False,x=df_sub1['dist[m]'].values[i]*100,y=3.0-i*0.4,
+            text="{:.2f}".format(self.quad_vals[i]))
 
         quad_size=10.
         df_sub1 = df_beam.loc[df_beam['name'].isin(['slit'])]
@@ -140,9 +141,9 @@ class RunTRACK():
         fig_step.add_trace(go.Scatter(name='Y-max',x=df_step['z[cm]'], 
         y=df_step['X-max[cm]'],mode='lines',marker_color=color[1],
         line_dash='dot'))
-        fig_step.update_xaxes(title="distance [cm]",range=[0,3000])
+        fig_step.update_xaxes(title="distance [cm]",range=[0,600])
         fig_step.update_yaxes(title="size [cm]",range=[0,3.25])
-        fig_step.update_layout(width=1200,height=600)
+        fig_step.update_layout(title="{}".format(self.theta_dir),width=1200,height=600)
         os.chdir(self.run_dir)
         if (self.counter < 10):
             fig_step.write_image(f"profile0000{self.counter}.png")
