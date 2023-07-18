@@ -16,14 +16,15 @@ def obj_fun_with_DB(quad_vals, i, npat):
     database = "theta_" + str(i) + "_database_" + str(npat) +".npy"
     DB = []
     match = 0
-    if os.path.exists(database):
-         DB = np.load(database, allow_pickle=True)
-         for j, db_entry in enumerate(DB):
-                 if np.allclose(db_entry["var_vals"], quad_vals, rtol=1e-12, atol=1e-12):
-                     fval = db_entry["f"]
-                     match = 1
-                     print("match found")
-                     break
+    # if os.path.exists(database):
+    #     DB = np.load(database, allow_pickle=True)
+    #     for j, db_entry in enumerate(DB):
+    #         if db_entry["theta_i"] == i:
+    #             if np.allclose(db_entry["var_vals"], quad_vals, rtol=1e-12, atol=1e-12):
+    #                 fval = db_entry["#of_part_left"]
+    #                 match = 1
+    #                 print("match found")
+    #                 break
 
     if match == 0:
         # Do the sim
@@ -37,14 +38,16 @@ def obj_fun_with_DB(quad_vals, i, npat):
         df_beam, df_coord, df_step = rs.get_output()
         os.chdir(starting_dir)
 
-        #x = df_coord["x[cm]"].to_numpy()
-        #y = df_coord["y[cm]"].to_numpy()
+        x = df_coord["x[cm]"].to_numpy()
+        y = df_coord["y[cm]"].to_numpy()
         fval = df_beam.iloc[-1]["#of_part_left"]
-        #fval = np.hstack((x,y))
+        # fval = np.hstack((x,y))
 
-        to_save = {"f": fval, "var_vals": quad_vals}
-        DB = np.append(DB, to_save)
-        np.save(database, DB, allow_pickle=True)
+        print(fval)
+        to_save = {"#of_part_left": fval, "theta_i": i, "var_vals": quad_vals}
+        sys.exit('a')
+        # DB = np.append(DB, to_save)
+        # np.save(database, DB)
 
     return fval
 
