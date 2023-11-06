@@ -61,7 +61,7 @@ try:
           value=float(current[:-1])*(1000000000000.)
           dbwrite = "influx -execute \'insert fc,tag=cross value={}\' -database=db".format(value)
           os.system(dbwrite)
-          print("{:.0f}".format(time.time()), value)
+          print("{:.1f} {:.8f}".format(time.time(), value))
       else:
           print("something wrong with data, waiting...")
           time.sleep(readtime)
